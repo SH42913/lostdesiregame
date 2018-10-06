@@ -1,0 +1,8 @@
+[submodule "Assets/Plugins/Leopotam.Ecs.UnityIntegration"]
+	path = Assets/Plugins/Leopotam.Ecs.UnityIntegration
+	url = https://github.com/Leopotam/ecs-unityintegration
+	branch = develop
+[submodule "Assets/Plugins/Leopotam.Ecs.Net"]
+	path = Assets/Plugins/Leopotam.Ecs.Net
+	url = https://github.com/SH42913/LeoEcsNet
+	branch = develop
