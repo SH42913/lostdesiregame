@@ -5,8 +5,6 @@ namespace Dialogs.ConnectToDialog
 {
     public class ConnectToDialogBehaviourComponent : AbstractBehaviourComponent
     {
-        public InputField LocalAddress;
-        public InputField LocalPort;
         public InputField RemoteAddress;
         public InputField RemotePort;
 
@@ -16,15 +14,13 @@ namespace Dialogs.ConnectToDialog
         {
             ConnectButton.onClick.AddListener(() =>
             {
-                EcsWorld.Active.CreateEntityWith<ConnectToDialogEvent>();
+                EcsWorld.Active.CreateEntityWith<TryToConnectEvent>();
             });
         }
 
         public override void AttachComponentToEntity(EcsWorld world, int entity)
         {
             var dialog = world.AddComponent<ConnectToDialogComponent>(entity);
-            dialog.LocalAddress = LocalAddress;
-            dialog.LocalPort = LocalPort;
             dialog.RemoteAddress = RemoteAddress;
             dialog.RemotePort = RemotePort;
         }

@@ -1,4 +1,5 @@
-﻿using Leopotam.Ecs;
+﻿using System.Net;
+using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 
 namespace Dialogs.ConnectToDialog
@@ -11,7 +12,7 @@ namespace Dialogs.ConnectToDialog
 
         private EcsFilter<DialogComponent, ConnectToDialogComponent> _dialogs;
         private EcsFilter<ShowConnectToDialogEvent> _showEvents;
-        private EcsFilter<ConnectToDialogEvent> _connectEvents;
+        private EcsFilter<TryToConnectEvent> _connectEvents;
 
         public void Initialize()
         {
@@ -22,34 +23,35 @@ namespace Dialogs.ConnectToDialog
         {
             if (_showEvents.EntitiesCount > 0)
             {
+                _showEvents.RemoveAllEntities();
+                
                 for (int i = 0; i < _dialogs.EntitiesCount; i++)
                 {
                     _dialogs.Components1[i].Content.SetActive(true);
                 }
-
-                _showEvents.RemoveAllEntities();
             }
             
             if(_connectEvents.EntitiesCount <= 0) return;
+            _connectEvents.RemoveAllEntities();
 
             string remoteAddress = null;
             short remotePort = 0;
+            bool created = false;
             for (int i = 0; i < _dialogs.EntitiesCount; i++)
             {
                 ConnectToDialogComponent dialog = _dialogs.Components2[i];
-                if(string.IsNullOrEmpty(dialog.LocalAddress.text) || string.IsNullOrEmpty(dialog.LocalPort.text) || 
-                   string.IsNullOrEmpty(dialog.RemoteAddress.text) || string.IsNullOrEmpty(dialog.RemotePort.text)) continue;
-
-                _networkConfig.Data.LocalAddress = dialog.LocalAddress.text;
-                _networkConfig.Data.LocalPort = short.Parse(dialog.LocalPort.text);
+                
+                IPAddress ip;
+                short port;
+                if(!IPAddress.TryParse(dialog.RemoteAddress.text, out ip) ||
+                   !short.TryParse(dialog.RemotePort.text, out port)) continue;
 
                 remoteAddress = dialog.RemoteAddress.text;
                 remotePort = short.Parse(dialog.RemotePort.text);
+                created = true;
             }
-            _connectEvents.RemoveAllEntities();
             
-            if(string.IsNullOrEmpty(remoteAddress)) return;
-            _ecsWorld.CreateEntityWith<StartListenerEvent>();
+            if(!created) return;
 
             ConnectToEvent connect;
             _ecsWorld.CreateEntityWith(out connect);
@@ -67,8 +69,6 @@ namespace Dialogs.ConnectToDialog
             for (int i = 0; i < _dialogs.EntitiesCount; i++)
             {
                 ConnectToDialogComponent component = _dialogs.Components2[i];
-                component.LocalAddress = null;
-                component.LocalPort = null;
                 component.RemoteAddress = null;
                 component.RemotePort = null;
             }

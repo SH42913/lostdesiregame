@@ -1,9 +1,9 @@
 ﻿using Leopotam.Ecs;
 
-namespace Dialogs.StartServerDialog
+namespace Dialogs.ConnectToDialog
 {
     [EcsIgnoreInFilter]
-    public class StartServerEvent
+    public class TryToConnectEvent
     {
         
     }

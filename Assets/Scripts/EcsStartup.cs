@@ -2,9 +2,8 @@ using System.Collections.Generic;
 using Connections;
 using Debug.StatusString;
 using Dialogs;
-using Dialogs.ClientTypeDialog;
 using Dialogs.ConnectToDialog;
-using Dialogs.StartServerDialog;
+using Dialogs.StartConnectionDialog;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Leopotam.Ecs.Net.Implementations.JsonSerializator;
@@ -52,7 +51,7 @@ internal sealed class EcsStartup : MonoBehaviour {
 
     private void GenerateStartEvents()
     {
-        _world.CreateEntityWith<ShowClientTypeDialogEvent>();
+        _world.CreateEntityWith<ShowStartConnectionDialogEvent>();
     }
 
     private void OnDisable () {
@@ -69,8 +68,7 @@ public static class EcsWorldExtensions
     {
         return systems
             .Add(new BaseDialogSystem())
-            .Add(new ClientTypeDialogSystem())
-            .Add(new StartServerDialogSystem())
+            .Add(new StartConnectionDialogSystem())
             .Add(new ConnectToDialogSystem());
     }
 
