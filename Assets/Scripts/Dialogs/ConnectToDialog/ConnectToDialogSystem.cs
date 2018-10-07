@@ -8,6 +8,8 @@ namespace Dialogs.ConnectToDialog
     public class ConnectToDialogSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
+
+        private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
 
         private EcsFilter<DialogComponent, ConnectToDialogComponent> _dialogs;
@@ -52,6 +54,8 @@ namespace Dialogs.ConnectToDialog
             }
             
             if(!created) return;
+
+            _localConfig.Data.ClientType = ClientType.CLIENT;
 
             ConnectToEvent connect;
             _ecsWorld.CreateEntityWith(out connect);

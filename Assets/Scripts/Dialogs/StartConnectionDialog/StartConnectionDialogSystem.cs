@@ -9,6 +9,7 @@ namespace Dialogs.StartConnectionDialog
     {
         private EcsWorld _ecsWorld;
 
+        private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
         
         private EcsFilter<DialogComponent, StartConnectionDialogComponent> _dialogs;
@@ -50,12 +51,12 @@ namespace Dialogs.StartConnectionDialog
                 created = true;
             }
             if(!created) return;
+            _ecsWorld.CreateEntityWith<StartListenerEvent>();
 
             for (int i = 0; i < _dialogs.EntitiesCount; i++)
             {
                 _ecsWorld.CreateEntityWith<HideDialogEvent>().DialogEntity = _dialogs.Entities[i];
             }
-            _ecsWorld.CreateEntityWith<StartListenerEvent>();
         }
 
         public void Destroy()

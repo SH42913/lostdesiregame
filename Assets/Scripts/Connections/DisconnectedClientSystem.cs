@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 
@@ -10,6 +11,7 @@ namespace Connections
         private EcsWorld _ecsWorld;
         private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilter<ClientDisconnectedEvent> _disconnectedEvents;
+        private object _locker = new object();
 
         public void Initialize()
         {
@@ -23,11 +25,14 @@ namespace Connections
                 List<ClientInfo> connected = _localConfig.Data.ConnectedClients;
                 ClientInfo disconnected = _disconnectedEvents.Components1[i].DisconnectedClient;
 
-                foreach (ClientInfo info in connected)
+                lock (_locker)
                 {
-                    if (info.Address == disconnected.Address && info.Port == disconnected.Port)
+                    foreach (ClientInfo info in connected)
                     {
-                        connected.Remove(info);
+                        if (info.Address == disconnected.Address && info.Port == disconnected.Port)
+                        {
+                            connected.Remove(info);
+                        }
                     }
                 }
             }

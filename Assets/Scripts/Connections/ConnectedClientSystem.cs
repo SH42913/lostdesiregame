@@ -1,5 +1,6 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using World;
 
 namespace Connections
 {
@@ -15,6 +16,7 @@ namespace Connections
             for (int i = 0; i < _connectedEvents.EntitiesCount; i++)
             {
                 _localConfig.Data.ConnectedClients.Add(_connectedEvents.Components1[i].ConnectedClient);
+                _ecsWorld.CreateEntityWith<SendWorldEvent>();
             }
         }
     }

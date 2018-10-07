@@ -9,6 +9,7 @@ using Leopotam.Ecs.Net;
 using Leopotam.Ecs.Net.Implementations.JsonSerializator;
 using Leopotam.Ecs.Net.Implementations.TcpRetranslator;
 using UnityEngine;
+using World;
 
 internal sealed class EcsStartup : MonoBehaviour {
     private EcsWorld _world;
@@ -34,6 +35,7 @@ internal sealed class EcsStartup : MonoBehaviour {
             .AddNetworkProcessingSystems()
             .AddConnectionSystems()
             .AddDialogsSystems()
+            .AddWorldSystems()
             .AddDebugSystems()
             .AddNetworkProcessingSystems()
             .Initialize ();
@@ -72,6 +74,12 @@ public static class EcsWorldExtensions
             .Add(new ConnectToDialogSystem());
     }
 
+    public static EcsSystems AddWorldSystems(this EcsSystems systems)
+    {
+        return systems
+            .Add(new WorldSystem());
+    }
+
     public static EcsSystems AddConnectionSystems(this EcsSystems systems)
     {
         return systems
@@ -87,6 +95,7 @@ public static class EcsWorldExtensions
     
     public static EcsSystems AddNetworkProcessingSystems(this EcsSystems systems)
     {
-        return systems;
+        return systems
+            .Add(new NetworkComponentProcessSystem<WorldComponent>(WorldComponent.NewToOld));
     }
 }
