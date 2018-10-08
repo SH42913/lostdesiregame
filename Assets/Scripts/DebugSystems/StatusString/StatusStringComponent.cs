@@ -1,6 +1,6 @@
 ﻿using UnityEngine.UI;
 
-namespace Debug.StatusString
+namespace DebugSystems.StatusString
 {
     public class StatusStringComponent
     {

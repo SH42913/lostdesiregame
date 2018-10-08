@@ -1,6 +1,8 @@
 ﻿using Dialogs.ConnectToDialog;
+using Dialogs.CreatePlayerDialog;
 using Leopotam.Ecs;
 using UnityEngine.UI;
+using World;
 
 namespace Dialogs.StartConnectionDialog
 {
@@ -16,7 +18,7 @@ namespace Dialogs.StartConnectionDialog
             ServerButton.onClick.AddListener(() =>
             {
                 EcsWorld.Active.CreateEntityWith<ApplyLocalAddressEvent>();
-                //ToDo Добавить запуск мира
+                EcsWorld.Active.CreateEntityWith<CreateWorldEvent>();
             });
             ConnectButton.onClick.AddListener(() =>
             {

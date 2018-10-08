@@ -10,5 +10,4 @@ public enum ClientType
 public class LocalGameConfig
 {
     public ClientType ClientType;
-    public List<ClientInfo> ConnectedClients;
 }
