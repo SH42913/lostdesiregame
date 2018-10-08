@@ -5,9 +5,7 @@ namespace World
     [EcsNetComponentUid(0)]
     public class WorldComponent
     {
-
-
-        public static void NewToOld(WorldComponent newWorld, WorldComponent oldWorld)
+        public static void NewToOldConverter(WorldComponent newWorld, WorldComponent oldWorld)
         {
             
         }

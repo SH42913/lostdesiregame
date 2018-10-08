@@ -1,19 +1,23 @@
 using System.Collections.Generic;
-using Connections;
-using Debug.StatusString;
+using DebugSystems.StatusString;
 using Dialogs;
 using Dialogs.ConnectToDialog;
+using Dialogs.CreatePlayerDialog;
 using Dialogs.StartConnectionDialog;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Leopotam.Ecs.Net.Implementations.JsonSerializator;
 using Leopotam.Ecs.Net.Implementations.TcpRetranslator;
+using Network;
+using Network.Sessions;
+using Players;
 using UnityEngine;
 using World;
 
 internal sealed class EcsStartup : MonoBehaviour {
     private EcsWorld _world;
     private EcsSystems _systems;
+    private List<IEcsSystem> _networkProcessingSystems;
 
     private void OnEnable () {
         _world = new EcsWorld ();
@@ -23,23 +27,26 @@ internal sealed class EcsStartup : MonoBehaviour {
         networkConfig.EcsNetworkListener = new TcpRetranslator();
         networkConfig.Serializator = new JsonSerializator();
         
-        localConfig.ConnectedClients = new List<ClientInfo>();
-        
 #if UNITY_EDITOR
         Leopotam.Ecs.UnityIntegration.EcsWorldObserver.Create (_world);
 #endif
         
         _systems = new EcsSystems (_world);
+        
+        _systems.Add(new RetranslatorSystem());
+        CreateNetworkProcessingSystems();
+        AddNetworkProcessingSystems(_systems);
+            
         _systems
-            .Add(new RetranslatorSystem())
-            .AddNetworkProcessingSystems()
             .AddConnectionSystems()
             .AddDialogsSystems()
             .AddWorldSystems()
-            .AddDebugSystems()
-            .AddNetworkProcessingSystems()
-            .Initialize ();
-
+            .AddDebugSystems();
+            
+        AddNetworkProcessingSystems(_systems);
+        _networkProcessingSystems = null;
+        
+        _systems.Initialize ();
         GenerateStartEvents();
         
 #if UNITY_EDITOR
@@ -62,6 +69,24 @@ internal sealed class EcsStartup : MonoBehaviour {
         _world.Dispose ();
         _world = null;
     }
+
+    private void CreateNetworkProcessingSystems()
+    {
+        _networkProcessingSystems = new List<IEcsSystem>
+        {
+            new NetworkComponentProcessSystem<WorldComponent>(WorldComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<SessionComponent>(SessionComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<PlayerComponent>(PlayerComponent.NewToOldConverter)
+        };
+    }
+    
+    private void AddNetworkProcessingSystems(EcsSystems systems)
+    {
+        foreach (IEcsSystem processingSystem in _networkProcessingSystems)
+        {
+            systems.Add(processingSystem);
+        }
+    }
 }
 
 public static class EcsWorldExtensions
@@ -71,12 +96,14 @@ public static class EcsWorldExtensions
         return systems
             .Add(new BaseDialogSystem())
             .Add(new StartConnectionDialogSystem())
-            .Add(new ConnectToDialogSystem());
+            .Add(new ConnectToDialogSystem())
+            .Add(new CreatePlayerDialogSystem());
     }
 
     public static EcsSystems AddWorldSystems(this EcsSystems systems)
     {
         return systems
+            .Add(new PlayerSystem())
             .Add(new WorldSystem());
     }
 
@@ -84,18 +111,13 @@ public static class EcsWorldExtensions
     {
         return systems
             .Add(new ConnectedClientSystem())
-            .Add(new DisconnectedClientSystem());
+            .Add(new DisconnectedClientSystem())
+            .Add(new SessionSystem());
     }
 
     public static EcsSystems AddDebugSystems(this EcsSystems systems)
     {
         return systems
             .Add(new StatusStringSystem());
-    }
-    
-    public static EcsSystems AddNetworkProcessingSystems(this EcsSystems systems)
-    {
-        return systems
-            .Add(new NetworkComponentProcessSystem<WorldComponent>(WorldComponent.NewToOld));
     }
 }

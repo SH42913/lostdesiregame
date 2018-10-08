@@ -1,14 +1,18 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network.Sessions;
 
-namespace Debug.StatusString
+namespace DebugSystems.StatusString
 {
     [EcsInject]
     public class StatusStringSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
+        
         private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+
+        private EcsFilter<SessionComponent> _sessions;
         private EcsFilter<StatusStringComponent> _statusStrings;
         
         public void Initialize()
@@ -29,7 +33,7 @@ namespace Debug.StatusString
             return " LocalAddress: " + _networkConfig.Data.LocalAddress + ":" + _networkConfig.Data.LocalPort +
                    " Type: " + _localConfig.Data.ClientType +
                    " IsRunning: " + _networkConfig.Data.EcsNetworkListener.IsRunning +
-                   " ClientsCount: " + _localConfig.Data.ConnectedClients.Count;
+                   " Sessions: " + _sessions.EntitiesCount;
         }
 
         public void Destroy()

@@ -1,5 +1,7 @@
-﻿using Leopotam.Ecs;
+﻿using Dialogs.CreatePlayerDialog;
+using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network.Sessions;
 
 namespace World
 {
@@ -12,7 +14,7 @@ namespace World
 
         private EcsFilter<WorldComponent> _worlds;
 
-        private EcsFilter<SendWorldEvent> _sendEvents;
+        private EcsFilter<SendBaseInfo> _sendEvents;
         private EcsFilter<CreateWorldEvent> _createEvents;
         
         public void Run()
@@ -21,6 +23,8 @@ namespace World
             {
                 _createEvents.RemoveAllEntities();
                 _ecsWorld.CreateEntityWith<WorldComponent>();
+                _ecsWorld.CreateEntityWith<CreateLocalSessionEvent>();
+                _ecsWorld.CreateEntityWith<ShowCreatePlayerDialogEvent>();
             }
             
             if(_sendEvents.EntitiesCount <= 0) return;
@@ -31,7 +35,6 @@ namespace World
             {
                 _ecsWorld.SendComponentToNetwork<WorldComponent>(_worlds.Entities[i]);
             }
-            UnityEngine.Debug.Log("World mark for send");
         }
     }
 }

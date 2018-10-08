@@ -1,22 +1,27 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network.Sessions;
 using World;
 
-namespace Connections
+namespace Network
 {
     [EcsInject]
     public class ConnectedClientSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
+        
         private EcsFilterSingle<LocalGameConfig> _localConfig;
+
+        private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
+        
         private EcsFilter<ClientConnectedEvent> _connectedEvents;
         
         public void Run()
         {
-            for (int i = 0; i < _connectedEvents.EntitiesCount; i++)
+            if (_connectedEvents.EntitiesCount > 0)
             {
-                _localConfig.Data.ConnectedClients.Add(_connectedEvents.Components1[i].ConnectedClient);
-                _ecsWorld.CreateEntityWith<SendWorldEvent>();
+                UnityEngine.Debug.Log("Connected");
+                _ecsWorld.CreateEntityWith<SendBaseInfo>();
             }
         }
     }

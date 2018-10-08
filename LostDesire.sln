@@ -1,10 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
+Project("{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}"
+EndProject
 Project("{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1}") = "Leopotam.Ecs.Net", "Leopotam.Ecs.Net.csproj", "{0EE07C9C-213A-78E9-1F3E-44EE9D13BCE8}"
 EndProject
 Project("{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1}") = "Leopotam.Ecs", "Leopotam.Ecs.csproj", "{0B150385-F228-CD53-5177-CE560F43C1E1}"
-EndProject
-Project("{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}"
 EndProject
 Project("{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1}") = "Leopotam.Ecs.UnityIntegration", "Leopotam.Ecs.UnityIntegration.csproj", "{48F34C56-F570-2898-17E7-241C2D99BBE3}"
 EndProject
@@ -18,6 +18,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0EE07C9C-213A-78E9-1F3E-44EE9D13BCE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0EE07C9C-213A-78E9-1F3E-44EE9D13BCE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EE07C9C-213A-78E9-1F3E-44EE9D13BCE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,10 +30,6 @@ Global
 		{0B150385-F228-CD53-5177-CE560F43C1E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B150385-F228-CD53-5177-CE560F43C1E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B150385-F228-CD53-5177-CE560F43C1E1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{375F5F94-4A98-AACD-CD17-9B7B2C1910EA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{48F34C56-F570-2898-17E7-241C2D99BBE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{48F34C56-F570-2898-17E7-241C2D99BBE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48F34C56-F570-2898-17E7-241C2D99BBE3}.Release|Any CPU.ActiveCfg = Release|Any CPU

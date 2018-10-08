@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using Dialogs.CreatePlayerDialog;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network.Sessions;
 
 namespace Dialogs.ConnectToDialog
 {
@@ -61,6 +63,9 @@ namespace Dialogs.ConnectToDialog
             _ecsWorld.CreateEntityWith(out connect);
             connect.Address = remoteAddress;
             connect.Port = remotePort;
+
+            _ecsWorld.CreateEntityWith<CreateLocalSessionEvent>();
+            _ecsWorld.CreateEntityWith<ShowCreatePlayerDialogEvent>();
 
             for (int i = 0; i < _dialogs.EntitiesCount; i++)
             {

@@ -1,7 +1,7 @@
 ﻿using Leopotam.Ecs;
 using UnityEngine.UI;
 
-namespace Debug.StatusString
+namespace DebugSystems.StatusString
 {
     public class StatusStringBehaviourComponent : AbstractBehaviourComponent
     {
