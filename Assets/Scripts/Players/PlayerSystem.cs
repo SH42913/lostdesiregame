@@ -8,6 +8,7 @@ namespace Players
     public class PlayerSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
+        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
 
         private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
         private EcsFilter<PlayerComponent, LocalSessionMarkComponent> _localPlayer;
@@ -42,6 +43,7 @@ namespace Players
                 int localSessionEntity = _localSession.Entities[i];
                 var player = _ecsWorld.AddComponent<PlayerComponent>(localSessionEntity);
                 player.Name = name;
+                player.Id = _networkConfig.Data.Random.NextInt64();
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
             }
         }
