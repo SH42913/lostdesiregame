@@ -6,7 +6,7 @@ using Network.Sessions;
 namespace World
 {
     [EcsInject]
-    public class WorldSystem : IEcsRunSystem
+    public class WorldSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
 
@@ -16,6 +16,11 @@ namespace World
 
         private EcsFilter<SendBaseInfo> _sendEvents;
         private EcsFilter<CreateWorldEvent> _createEvents;
+
+        public void Initialize()
+        {
+            
+        }
         
         public void Run()
         {
@@ -35,6 +40,11 @@ namespace World
             {
                 _ecsWorld.SendComponentToNetwork<WorldComponent>(_worlds.Entities[i]);
             }
+        }
+
+        public void Destroy()
+        {
+            _localConfig.Data.ShipContainer = null;
         }
     }
 }

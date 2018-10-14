@@ -1,6 +1,7 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Network.Sessions;
+using Ships;
 
 namespace Players
 {
@@ -45,6 +46,7 @@ namespace Players
                 player.Name = name;
                 player.Id = _networkConfig.Data.Random.NextInt64();
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
+                _ecsWorld.SendEventToNetwork<CreateShipEvent>().PlayerId = player.Id;
             }
         }
     }

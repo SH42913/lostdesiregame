@@ -8,9 +8,11 @@ using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Leopotam.Ecs.Net.Implementations.JsonSerializator;
 using Leopotam.Ecs.Net.Implementations.TcpRetranslator;
+using LeopotamGroup.Pooling;
 using Network;
 using Network.Sessions;
 using Players;
+using Ships;
 using UnityEngine;
 using World;
 
@@ -19,10 +21,14 @@ internal sealed class EcsStartup : MonoBehaviour {
     private EcsSystems _systems;
     private List<IEcsSystem> _networkProcessingSystems;
 
+    [SerializeField]
+    private PoolContainer _shipContainer;
+
     private void OnEnable () {
         _world = new EcsWorld ();
         var networkConfig = EcsFilterSingle<EcsNetworkConfig>.Create(_world);
         var localConfig = EcsFilterSingle<LocalGameConfig>.Create(_world);
+        localConfig.ShipContainer = _shipContainer;
         
         networkConfig.EcsNetworkListener = new TcpRetranslator();
         networkConfig.Serializator = new JsonSerializator();
@@ -40,6 +46,7 @@ internal sealed class EcsStartup : MonoBehaviour {
         _systems
             .AddConnectionSystems()
             .AddDialogsSystems()
+            .AddShipSystems()
             .AddWorldSystems()
             .AddDebugSystems();
             
@@ -76,7 +83,10 @@ internal sealed class EcsStartup : MonoBehaviour {
         {
             new NetworkComponentProcessSystem<WorldComponent>(WorldComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<SessionComponent>(SessionComponent.NewToOldConverter),
-            new NetworkComponentProcessSystem<PlayerComponent>(PlayerComponent.NewToOldConverter)
+            new NetworkComponentProcessSystem<PlayerComponent>(PlayerComponent.NewToOldConverter),
+            new NetworkEventProcessSystem<CreateShipEvent>(CreateShipEvent.NewToOldConverter),
+            new NetworkComponentProcessSystem<ShipMarkComponent>(ShipMarkComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter)
         };
     }
     
@@ -113,6 +123,13 @@ public static class EcsWorldExtensions
             .Add(new ConnectedClientSystem())
             .Add(new DisconnectedClientSystem())
             .Add(new SessionSystem());
+    }
+
+    public static EcsSystems AddShipSystems(this EcsSystems systems)
+    {
+        return systems
+            .Add(new ShipSpawnSystem())
+            .Add(new ShipUpdateSystem());
     }
 
     public static EcsSystems AddDebugSystems(this EcsSystems systems)

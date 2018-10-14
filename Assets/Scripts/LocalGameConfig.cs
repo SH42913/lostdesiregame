@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Leopotam.Ecs.Net;
+﻿using LeopotamGroup.Pooling;
 
 public enum ClientType
 {
@@ -10,4 +9,5 @@ public enum ClientType
 public class LocalGameConfig
 {
     public ClientType ClientType;
+    public PoolContainer ShipContainer;
 }
