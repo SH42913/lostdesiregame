@@ -48,7 +48,8 @@ internal sealed class EcsStartup : MonoBehaviour {
             .AddDialogsSystems()
             .AddShipSystems()
             .AddWorldSystems()
-            .AddDebugSystems();
+            .AddDebugSystems()
+            .Add(new CleaningSystem());
             
         AddNetworkProcessingSystems(_systems);
         _networkProcessingSystems = null;

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class TransformComponent
+public class UnityComponent
 {
     public Transform Transform;
 }

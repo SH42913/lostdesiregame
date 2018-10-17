@@ -36,15 +36,14 @@ namespace Ships
                 Transform shipObject = _localConfig.Data.ShipContainer.Get().PoolTransform;
                 shipObject.gameObject.SetActive(true);
                 shipObject.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
-                
-                ShipMarkComponent shipMark;
-                PositionComponent position;
-                TransformComponent transform;
-                int shipEntity = _ecsWorld.CreateEntityWith(out shipMark, out position, out transform);
-                shipMark.PlayerId = playerKey;
+                int shipEntity = shipObject.GetComponent<EntityBehaviour>().Entity;
 
-                transform.Transform = shipObject;
+                shipObject.GetComponent<Rigidbody2D>().angularVelocity = 10;
                 
+                ShipMarkComponent shipMark = _ecsWorld.AddComponent<ShipMarkComponent>(shipEntity);
+                shipMark.PlayerId = playerKey;
+                
+                PositionComponent position = _ecsWorld.AddComponent<PositionComponent>(shipEntity);
                 position.PositionX = shipObject.position.x;
                 position.PositionY = shipObject.position.y;
                 position.Rotation = shipObject.eulerAngles.z;
