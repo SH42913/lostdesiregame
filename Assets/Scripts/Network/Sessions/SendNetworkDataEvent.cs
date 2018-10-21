@@ -1,9 +1,9 @@
 ﻿using Leopotam.Ecs;
 
-namespace World
+namespace Network.Sessions
 {
     [EcsIgnoreInFilter]
-    public class CreateWorldEvent
+    public class SendNetworkDataEvent
     {
         
     }

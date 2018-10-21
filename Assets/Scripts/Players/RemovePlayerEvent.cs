@@ -2,6 +2,6 @@
 {
     public class RemovePlayerEvent
     {
-        public int Entity;
+        public long PlayerId;
     }
 }

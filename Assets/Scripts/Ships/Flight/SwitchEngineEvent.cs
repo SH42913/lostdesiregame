@@ -1,6 +1,6 @@
 ﻿using Leopotam.Ecs.Net;
 
-namespace Ships
+namespace Ships.Flight
 {
     public enum EngineDirection
     {

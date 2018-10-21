@@ -2,6 +2,7 @@
 using Leopotam.Ecs.Net;
 using Network.Sessions;
 using Ships;
+using Ships.Spawn;
 
 namespace Players
 {
@@ -13,10 +14,10 @@ namespace Players
 
         private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
         private EcsFilter<PlayerComponent, LocalSessionMarkComponent> _localPlayer;
+        private EcsFilter<OwnedByPlayerComponent> _ownedObjects;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<CreatePlayerEvent> _createEvents;
-        private EcsFilter<RemovePlayerEvent> _removeEvents;
         
         public void Run()
         {
@@ -46,7 +47,7 @@ namespace Players
                 player.Name = name;
                 player.Id = _networkConfig.Data.Random.NextInt64();
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
-                _ecsWorld.SendEventToNetwork<CreateShipEvent>().PlayerId = player.Id;
+                _ecsWorld.SendEventToNetwork<SpawnShipEvent>().PlayerId = player.Id;
             }
         }
     }

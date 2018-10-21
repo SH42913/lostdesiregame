@@ -1,5 +1,6 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Players;
 using World;
 
 namespace Network.Sessions
@@ -13,7 +14,7 @@ namespace Network.Sessions
 
         private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateLocalSessionEvent> _createEvent;
         private EcsFilter<RemoveSessionEvent> _removeEvents;
         
@@ -37,7 +38,13 @@ namespace Network.Sessions
             for (int i = 0; i < _removeEvents.EntitiesCount; i++)
             {
                 int entityToRemove = _removeEvents.Components1[i].LocalEntity;
-                
+                if(!_ecsWorld.IsEntityExists(entityToRemove)) continue;
+
+                var playerComponent = _ecsWorld.GetComponent<PlayerComponent>(entityToRemove);
+                if (playerComponent != null)
+                {
+                    _ecsWorld.CreateEntityWith<RemovePlayerEvent>().PlayerId = playerComponent.Id;
+                }
                 _ecsWorld.RemoveEntity(entityToRemove);
             }
             _removeEvents.RemoveAllEntities();

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cleaning;
 using DebugSystems.StatusString;
 using Dialogs;
 using Dialogs.ConnectToDialog;
@@ -13,6 +14,8 @@ using Network;
 using Network.Sessions;
 using Players;
 using Ships;
+using Ships.Spawn;
+using Ships.Update;
 using UnityEngine;
 using World;
 
@@ -40,6 +43,7 @@ internal sealed class EcsStartup : MonoBehaviour {
         _systems = new EcsSystems (_world);
         
         _systems.Add(new RetranslatorSystem());
+        
         CreateNetworkProcessingSystems();
         AddNetworkProcessingSystems(_systems);
             
@@ -48,12 +52,12 @@ internal sealed class EcsStartup : MonoBehaviour {
             .AddDialogsSystems()
             .AddShipSystems()
             .AddWorldSystems()
-            .AddDebugSystems()
-            .Add(new CleaningSystem());
+            .AddDebugSystems();
             
         AddNetworkProcessingSystems(_systems);
         _networkProcessingSystems = null;
         
+        _systems.Add(new CleaningSystem());
         _systems.Initialize ();
         GenerateStartEvents();
         
@@ -85,9 +89,10 @@ internal sealed class EcsStartup : MonoBehaviour {
             new NetworkComponentProcessSystem<WorldComponent>(WorldComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<SessionComponent>(SessionComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<PlayerComponent>(PlayerComponent.NewToOldConverter),
-            new NetworkEventProcessSystem<CreateShipEvent>(CreateShipEvent.NewToOldConverter),
+            new NetworkEventProcessSystem<SpawnShipEvent>(SpawnShipEvent.NewToOldConverter),
             new NetworkComponentProcessSystem<ShipMarkComponent>(ShipMarkComponent.NewToOldConverter),
-            new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter)
+            new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<RemoveMarkComponent>((newComp, oldComp) => { })
         };
     }
     

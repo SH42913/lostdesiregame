@@ -1,10 +1,12 @@
 ﻿using System;
+using Cleaning;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Network.Sessions;
+using Players;
 using UnityEngine;
 
-namespace Ships
+namespace Ships.Update
 {
     [EcsInject]
     public class ShipUpdateSystem : IEcsRunSystem
@@ -16,7 +18,8 @@ namespace Ships
         private EcsFilter<PositionComponent, UnityComponent, ShipMarkComponent> _ships;
         private EcsFilter<PositionComponent, ShipMarkComponent>.Exclude<UnityComponent> _shipsWithoutTransform;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<SendNetworkDataEvent> _sendEvents;
+        private EcsFilter<RemovePlayerEvent> _removePlayerEvents;
         
         public void Run()
         {
@@ -26,8 +29,7 @@ namespace Ships
 
                 Transform shipTransform = _localConfig.Data.ShipContainer.Get().PoolTransform;
                 shipTransform.gameObject.SetActive(true);
-                
-                _ecsWorld.AddComponent<UnityComponent>(shipEntity).Transform = shipTransform;
+                shipTransform.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
             }
 
             switch (_localConfig.Data.ClientType)
@@ -40,6 +42,11 @@ namespace Ships
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+
+            for (int i = 0; i < _removePlayerEvents.EntitiesCount; i++)
+            {
+                RemoveShip(_removePlayerEvents.Components1[i].PlayerId);
             }
         }
 
@@ -77,6 +84,19 @@ namespace Ships
                 position.PositionY = shipTransform.position.y;
 
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(_ships.Entities[i]);
+            }
+        }
+
+        private void RemoveShip(long playerId)
+        {
+            for (int i = 0; i < _ships.EntitiesCount; i++)
+            {
+                if (_ships.Components3[i].PlayerId != playerId) continue;
+
+                int shipEntity = _ships.Entities[i];
+                bool isNew;
+                _ecsWorld.EnsureComponent<RemoveMarkComponent>(shipEntity, out isNew);
+                _ecsWorld.SendComponentToNetwork<RemoveMarkComponent>(shipEntity);
             }
         }
     }

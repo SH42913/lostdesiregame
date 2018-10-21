@@ -6,7 +6,7 @@ using Network.Sessions;
 namespace World
 {
     [EcsInject]
-    public class WorldSystem : IEcsInitSystem, IEcsRunSystem
+    public class WorldSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
 
@@ -14,13 +14,8 @@ namespace World
 
         private EcsFilter<WorldComponent> _worlds;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateWorldEvent> _createEvents;
-
-        public void Initialize()
-        {
-            
-        }
         
         public void Run()
         {
@@ -33,18 +28,11 @@ namespace World
             }
             
             if(_sendEvents.EntitiesCount <= 0) return;
-            _sendEvents.RemoveAllEntities();
-
             if (_localConfig.Data.ClientType == ClientType.CLIENT) return;
             for (int i = 0; i < _worlds.EntitiesCount; i++)
             {
                 _ecsWorld.SendComponentToNetwork<WorldComponent>(_worlds.Entities[i]);
             }
-        }
-
-        public void Destroy()
-        {
-            _localConfig.Data.ShipContainer = null;
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Players;
+using Ships.Flight;
 using UnityEngine;
 
-namespace Ships
+namespace Ships.Spawn
 {
     [EcsInject]
     public class ShipSpawnSystem : IEcsRunSystem
@@ -11,7 +12,7 @@ namespace Ships
         private EcsWorld _ecsWorld;
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<CreateShipEvent> _createEvents;
+        private EcsFilter<SpawnShipEvent> _createEvents;
         private EcsFilter<PlayerComponent> _players;
         
         public void Run()
@@ -31,26 +32,28 @@ namespace Ships
                 int localPlayerEntity = FindLocalPlayerEntity(playerKey);
                 
                 if(localPlayerEntity < 0 || !_ecsWorld.IsEntityExists(localPlayerEntity)) continue;
-                if(_ecsWorld.GetComponent<CanControlComponent>(localPlayerEntity) != null) continue;
+                if(_ecsWorld.GetComponent<AssignedShipComponent>(localPlayerEntity) != null) continue;
 
                 Transform shipObject = _localConfig.Data.ShipContainer.Get().PoolTransform;
                 shipObject.gameObject.SetActive(true);
                 shipObject.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
-                int shipEntity = shipObject.GetComponent<EntityBehaviour>().Entity;
-
-                shipObject.GetComponent<Rigidbody2D>().angularVelocity = 10;
                 
-                ShipMarkComponent shipMark = _ecsWorld.AddComponent<ShipMarkComponent>(shipEntity);
+                ShipMarkComponent shipMark;
+                PositionComponent position;
+                int shipEntity = _ecsWorld.CreateEntityWith(out shipMark, out position);
                 shipMark.PlayerId = playerKey;
                 
-                PositionComponent position = _ecsWorld.AddComponent<PositionComponent>(shipEntity);
                 position.PositionX = shipObject.position.x;
                 position.PositionY = shipObject.position.y;
                 position.Rotation = shipObject.eulerAngles.z;
 
-                _ecsWorld.AddComponent<ControlableByComponent>(shipEntity).LocalPlayerEntity = localPlayerEntity;
-                _ecsWorld.AddComponent<CanControlComponent>(localPlayerEntity).LocalShipEntity = shipEntity;
+                var ownedBy = _ecsWorld.AddComponent<OwnedByPlayerComponent>(shipEntity);
+                ownedBy.LocalPlayerEntity = localPlayerEntity;
+                ownedBy.PlayerId = playerKey;
                 
+                _ecsWorld.AddComponent<AssignedShipComponent>(localPlayerEntity).LocalShipEntity = shipEntity;
+                
+                shipObject.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
                 _ecsWorld.SendComponentToNetwork<ShipMarkComponent>(shipEntity);
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
             }

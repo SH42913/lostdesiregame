@@ -455,6 +455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a5964e7d1634903a30918920d900505, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _createOnEnable: 1
   _removeOnDisable: 1
   _components:
   - {fileID: 67194663}
@@ -1046,6 +1047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a5964e7d1634903a30918920d900505, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _createOnEnable: 1
   _removeOnDisable: 1
   _components:
   - {fileID: 616515542}
@@ -2993,6 +2995,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a5964e7d1634903a30918920d900505, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _createOnEnable: 1
   _removeOnDisable: 1
   _components:
   - {fileID: 1566002144}
@@ -3520,6 +3523,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a5964e7d1634903a30918920d900505, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _createOnEnable: 1
   _removeOnDisable: 1
   _components:
   - {fileID: 1959739406}

@@ -21,7 +21,7 @@ namespace Network
             if (_connectedEvents.EntitiesCount > 0)
             {
                 UnityEngine.Debug.Log("Connected");
-                _ecsWorld.CreateEntityWith<SendBaseInfo>();
+                _ecsWorld.CreateEntityWith<SendNetworkDataEvent>();
             }
         }
     }

@@ -1,13 +1,13 @@
 ﻿using Leopotam.Ecs.Net;
 
-namespace Ships
+namespace Ships.Spawn
 {
     [EcsNetComponentUid(3)]
-    public class CreateShipEvent
+    public class SpawnShipEvent
     {
         public long PlayerId;
 
-        public static void NewToOldConverter(CreateShipEvent newEvent, CreateShipEvent oldEvent)
+        public static void NewToOldConverter(SpawnShipEvent newEvent, SpawnShipEvent oldEvent)
         {
             oldEvent.PlayerId = newEvent.PlayerId;
         }
