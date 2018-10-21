@@ -38,10 +38,10 @@ namespace Ships.Spawn
                 shipObject.gameObject.SetActive(true);
                 shipObject.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
                 
-                ShipMarkComponent shipMark;
+                ShipComponent ship;
                 PositionComponent position;
-                int shipEntity = _ecsWorld.CreateEntityWith(out shipMark, out position);
-                shipMark.PlayerId = playerKey;
+                int shipEntity = _ecsWorld.CreateEntityWith(out ship, out position);
+                ship.PlayerId = playerKey;
                 
                 position.PositionX = shipObject.position.x;
                 position.PositionY = shipObject.position.y;
@@ -54,7 +54,7 @@ namespace Ships.Spawn
                 _ecsWorld.AddComponent<AssignedShipComponent>(localPlayerEntity).LocalShipEntity = shipEntity;
                 
                 shipObject.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
-                _ecsWorld.SendComponentToNetwork<ShipMarkComponent>(shipEntity);
+                _ecsWorld.SendComponentToNetwork<ShipComponent>(shipEntity);
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
             }
         }

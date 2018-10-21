@@ -15,8 +15,8 @@ namespace Ships.Update
 
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<PositionComponent, UnityComponent, ShipMarkComponent> _ships;
-        private EcsFilter<PositionComponent, ShipMarkComponent>.Exclude<UnityComponent> _shipsWithoutTransform;
+        private EcsFilter<PositionComponent, UnityComponent, ShipComponent> _ships;
+        private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent> _shipsWithoutTransform;
 
         private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<RemovePlayerEvent> _removePlayerEvents;
@@ -69,7 +69,7 @@ namespace Ships.Update
                 for (int i = 0; i < _ships.EntitiesCount; i++)
                 {
                     int shipEntity = _ships.Entities[i];
-                    _ecsWorld.SendComponentToNetwork<ShipMarkComponent>(shipEntity);
+                    _ecsWorld.SendComponentToNetwork<ShipComponent>(shipEntity);
                     _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
                 }
             }

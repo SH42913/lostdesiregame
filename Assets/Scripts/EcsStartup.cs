@@ -14,6 +14,7 @@ using Network;
 using Network.Sessions;
 using Players;
 using Ships;
+using Ships.Flight;
 using Ships.Spawn;
 using Ships.Update;
 using UnityEngine;
@@ -27,7 +28,8 @@ internal sealed class EcsStartup : MonoBehaviour {
     [SerializeField]
     private PoolContainer _shipContainer;
 
-    private void OnEnable () {
+    private void OnEnable () 
+    {
         _world = new EcsWorld ();
         var networkConfig = EcsFilterSingle<EcsNetworkConfig>.Create(_world);
         var localConfig = EcsFilterSingle<LocalGameConfig>.Create(_world);
@@ -66,7 +68,29 @@ internal sealed class EcsStartup : MonoBehaviour {
 #endif
     }
 
-    private void Update () {
+    private void Update () 
+    {
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
+            switchEvent.Direction = EngineDirection.FORWARD;
+            switchEvent.Enable = true;
+            switchEvent.PlayerId = _world
+                .GetFilter<EcsFilter<PlayerComponent, LocalSessionMarkComponent>>()
+                .Components1[0]
+                .Id;
+        }
+        if (Input.GetKeyUp(KeyCode.W))
+        {
+            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
+            switchEvent.Direction = EngineDirection.FORWARD;
+            switchEvent.Enable = false;
+            switchEvent.PlayerId = _world
+                .GetFilter<EcsFilter<PlayerComponent, LocalSessionMarkComponent>>()
+                .Components1[0]
+                .Id;
+        }
+        
         _systems.Run ();
     }
 
@@ -75,7 +99,8 @@ internal sealed class EcsStartup : MonoBehaviour {
         _world.CreateEntityWith<ShowStartConnectionDialogEvent>();
     }
 
-    private void OnDisable () {
+    private void OnDisable () 
+    {
         _systems.Dispose ();
         _systems = null;
         _world.Dispose ();
@@ -90,9 +115,11 @@ internal sealed class EcsStartup : MonoBehaviour {
             new NetworkComponentProcessSystem<SessionComponent>(SessionComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<PlayerComponent>(PlayerComponent.NewToOldConverter),
             new NetworkEventProcessSystem<SpawnShipEvent>(SpawnShipEvent.NewToOldConverter),
-            new NetworkComponentProcessSystem<ShipMarkComponent>(ShipMarkComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<ShipComponent>(ShipComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter),
-            new NetworkComponentProcessSystem<RemoveMarkComponent>((newComp, oldComp) => { })
+            new NetworkComponentProcessSystem<RemoveMarkComponent>((newComp, oldComp) => { }),
+            new NetworkEventProcessSystem<SwitchEngineEvent>(SwitchEngineEvent.NewToOldConverter),
+            new NetworkComponentProcessSystem<EnginesComponent>(EnginesComponent.NewToOldConverter)
         };
     }
     
@@ -135,6 +162,8 @@ public static class EcsWorldExtensions
     {
         return systems
             .Add(new ShipSpawnSystem())
+            .Add(new ShipFlightSystem())
+            .Add(new ShipFlightEffectsSystem())
             .Add(new ShipUpdateSystem());
     }
 

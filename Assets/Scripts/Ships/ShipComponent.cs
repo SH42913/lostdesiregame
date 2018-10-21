@@ -3,11 +3,11 @@
 namespace Ships
 {
     [EcsNetComponentUid(6)]
-    public class ShipMarkComponent
+    public class ShipComponent
     {
         public long PlayerId;
         
-        public static void NewToOldConverter(ShipMarkComponent newComponent, ShipMarkComponent oldComponent)
+        public static void NewToOldConverter(ShipComponent newComponent, ShipComponent oldComponent)
         {
             oldComponent.PlayerId = newComponent.PlayerId;
         }

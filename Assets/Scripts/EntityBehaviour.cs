@@ -59,6 +59,12 @@ public class EntityBehaviour : MonoBehaviour
 
     private void AddComponentsToEntity(int entity)
     {
+        var rigid = GetComponent<Rigidbody2D>();
+        if (rigid != null)
+        {
+            _world.AddComponent<RigidBodyComponent>(entity).Rigidbody2D = rigid;
+        }
+        
         foreach (AbstractBehaviourComponent component in _components)
         {
             component.AttachComponentToEntity(_world, entity);
