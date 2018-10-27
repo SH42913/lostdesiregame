@@ -1,6 +1,6 @@
 ﻿namespace Network.Sessions
 {
-    public class RemoveSessionEvent
+    public class OwnedBySessionComponent
     {
         public long SessionId;
     }

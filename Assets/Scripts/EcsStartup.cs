@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using Cleaning;
 using ControlledCamera;
 using DebugSystems.StatusString;
 using Dialogs;
 using Dialogs.ConnectToDialog;
 using Dialogs.CreatePlayerDialog;
 using Dialogs.StartConnectionDialog;
+using InputSystems;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Leopotam.Ecs.Net.Implementations.JsonSerializator;
@@ -15,10 +15,11 @@ using Network;
 using Network.Sessions;
 using Players;
 using Ships;
+using Ships.Effects;
 using Ships.Flight;
 using Ships.Spawn;
-using Ships.Update;
 using UnityEngine;
+using UnityIntegration;
 using World;
 
 internal sealed class EcsStartup : MonoBehaviour {
@@ -35,6 +36,7 @@ internal sealed class EcsStartup : MonoBehaviour {
         var networkConfig = EcsFilterSingle<EcsNetworkConfig>.Create(_world);
         var localConfig = EcsFilterSingle<LocalGameConfig>.Create(_world);
         localConfig.ShipContainer = _shipContainer;
+        localConfig.SessionIdToLocalEntity = new Dictionary<long, int>();
         
         networkConfig.EcsNetworkListener = new TcpRetranslator();
         networkConfig.Serializator = new JsonSerializator();
@@ -51,17 +53,18 @@ internal sealed class EcsStartup : MonoBehaviour {
         AddNetworkProcessingSystems(_systems);
             
         _systems
-            .AddConnectionSystems()
+            .AddControlSystems()
             .AddDialogsSystems()
+            .AddWorldSystems()
+            .AddConnectionSystems()
             .AddShipSystems()
             .AddCameraSystems()
-            .AddWorldSystems()
             .AddDebugSystems();
             
         AddNetworkProcessingSystems(_systems);
         _networkProcessingSystems = null;
-        
-        _systems.Add(new CleaningSystem());
+
+        _systems.AddCleanSystems();
         _systems.Initialize ();
         GenerateStartEvents();
         
@@ -71,39 +74,8 @@ internal sealed class EcsStartup : MonoBehaviour {
     }
 
     private void Update () 
-    {
-        CheckKey(KeyCode.W, EngineDirection.FORWARD);
-        CheckKey(KeyCode.S, EngineDirection.BACKWARD);
-        CheckKey(KeyCode.A, EngineDirection.STRAFE_LEFT);
-        CheckKey(KeyCode.D, EngineDirection.STRAFE_RIGHT);
-        CheckKey(KeyCode.Q, EngineDirection.TURN_LEFT);
-        CheckKey(KeyCode.E, EngineDirection.TURN_RIGHT);
-        
+    {   
         _systems.Run ();
-    }
-
-    private void CheckKey(KeyCode key, EngineDirection direction)
-    {
-        if (Input.GetKeyDown(key))
-        {
-            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
-            switchEvent.Direction = direction;
-            switchEvent.Enable = true;
-            switchEvent.PlayerId = _world
-                .GetFilter<EcsFilter<PlayerComponent, LocalMarkComponent>>()
-                .Components1[0]
-                .Id;
-        }
-        if (Input.GetKeyUp(key))
-        {
-            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
-            switchEvent.Direction = direction;
-            switchEvent.Enable = false;
-            switchEvent.PlayerId = _world
-                .GetFilter<EcsFilter<PlayerComponent, LocalMarkComponent>>()
-                .Components1[0]
-                .Id;
-        }
     }
 
     private void GenerateStartEvents()
@@ -129,9 +101,10 @@ internal sealed class EcsStartup : MonoBehaviour {
             new NetworkEventProcessSystem<SpawnShipEvent>(SpawnShipEvent.NewToOldConverter),
             new NetworkComponentProcessSystem<ShipComponent>(ShipComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter),
-            new NetworkComponentProcessSystem<RemoveMarkComponent>((newComp, oldComp) => { }),
+            new NetworkComponentProcessSystem<DestroyedShipMarkComponent>(DestroyedShipMarkComponent.NewToOldConverter),
             new NetworkEventProcessSystem<SwitchEngineEvent>(SwitchEngineEvent.NewToOldConverter),
-            new NetworkComponentProcessSystem<EnginesComponent>(EnginesComponent.NewToOldConverter)
+            new NetworkComponentProcessSystem<EnginesStatsComponent>(EnginesStatsComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<EnginesStateComponent>(EnginesStateComponent.NewToOldConverter)
         };
     }
     
@@ -146,6 +119,11 @@ internal sealed class EcsStartup : MonoBehaviour {
 
 public static class EcsWorldExtensions
 {
+    public static EcsSystems AddControlSystems(this EcsSystems systems)
+    {
+        return systems.Add(new KeyboardListenerSystem());
+    }
+    
     public static EcsSystems AddDialogsSystems(this EcsSystems systems)
     {
         return systems
@@ -183,6 +161,14 @@ public static class EcsWorldExtensions
     {
         return systems
             .Add(new ControlledCameraSystem());
+    }
+
+    public static EcsSystems AddCleanSystems(this EcsSystems systems)
+    {
+        return systems.Add(new SessionCleanSystem())
+            .Add(new PlayerCleanSystem())
+            .Add(new ShipCleanSystem())
+            .Add(new UnityCleanSystem());
     }
 
     public static EcsSystems AddDebugSystems(this EcsSystems systems)

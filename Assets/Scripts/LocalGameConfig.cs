@@ -1,4 +1,5 @@
-﻿using LeopotamGroup.Pooling;
+﻿using System.Collections.Generic;
+using LeopotamGroup.Pooling;
 
 public enum ClientType
 {
@@ -10,5 +11,6 @@ public class LocalGameConfig
 {
     public ClientType ClientType;
     public PoolContainer ShipContainer;
-    public long LocalPlayerKey;
+    public Dictionary<long, int> SessionIdToLocalEntity;
+    public long LocalSessionId;
 }

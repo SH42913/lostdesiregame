@@ -1,6 +1,7 @@
 ﻿using Dialogs.CreatePlayerDialog;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network;
 using Network.Sessions;
 
 namespace World
@@ -14,7 +15,7 @@ namespace World
 
         private EcsFilter<WorldComponent> _worlds;
 
-        private EcsFilter<SendNetworkDataEvent> _sendEvents;
+        private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateWorldEvent> _createEvents;
         
         public void Run()

@@ -1,5 +1,6 @@
 ﻿using Leopotam.Ecs;
 using UnityEngine;
+using UnityIntegration;
 
 namespace ControlledCamera
 {
@@ -11,6 +12,11 @@ namespace ControlledCamera
         private EcsFilter<CameraFollowTargetComponent, UnityComponent> _targets;
         
         public void Run()
+        {
+            UpdateCameraPosition();
+        }
+
+        private void UpdateCameraPosition()
         {
             for (int i = 0; i < _cameras.EntitiesCount; i++)
             {

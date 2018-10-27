@@ -2,6 +2,7 @@
 using Leopotam.Ecs.Net;
 using Players;
 using UnityEngine;
+using UnityIntegration;
 
 namespace Ships.Flight
 {
@@ -14,24 +15,30 @@ namespace Ships.Flight
 
         private EcsFilter<SwitchEngineEvent> _switchEvents;
         private EcsFilter<PlayerComponent> _players;
-        private EcsFilter<RigidBodyComponent, EnginesComponent> _engines;
+        private EcsFilter<RigidBodyComponent, EnginesStateComponent, EnginesStatsComponent> _engines;
         
         public void Run()
         {
             if(_localConfig.Data.ClientType == ClientType.CLIENT) return;
             
+            SwitchEngines();
+            ApplyForces();
+        }
+
+        private void SwitchEngines()
+        {
             for (int i = 0; i < _switchEvents.EntitiesCount; i++)
             {
-                int playerEntity = GetLocalPlayer(_switchEvents.Components1[i].PlayerId);
-                if(playerEntity < 0 || !_ecsWorld.IsEntityExists(playerEntity)) continue;
+                int sessionEntity = GetSessionEntity(_switchEvents.Components1[i].SessionId);
+                if(sessionEntity < 0 || !_ecsWorld.IsEntityExists(sessionEntity)) continue;
 
-                var assignedShip = _ecsWorld.GetComponent<AssignedShipComponent>(playerEntity);
+                var assignedShip = _ecsWorld.GetComponent<AssignedShipComponent>(sessionEntity);
                 if(assignedShip == null) continue;
                 
                 int shipEntity = assignedShip.LocalShipEntity;
                 if(!_ecsWorld.IsEntityExists(shipEntity)) continue;
 
-                var engines = _ecsWorld.GetComponent<EnginesComponent>(shipEntity);
+                var engines = _ecsWorld.GetComponent<EnginesStateComponent>(shipEntity);
                 var rigid = _ecsWorld.GetComponent<RigidBodyComponent>(shipEntity);
                 if(engines == null || rigid == null) continue;
 
@@ -44,61 +51,59 @@ namespace Ships.Flight
                 {
                     engines.EnabledEngines = engines.EnabledEngines & ~switchEvent.Direction;
                 }
-                _ecsWorld.SendComponentToNetwork<EnginesComponent>(shipEntity);
+                _ecsWorld.SendComponentToNetwork<EnginesStateComponent>(shipEntity);
             }
+        }
 
+        private void ApplyForces()
+        {
             for (int i = 0; i < _engines.EntitiesCount; i++)
             {
                 Rigidbody2D rigid = _engines.Components1[i].Rigidbody2D;
-                EnginesComponent engines = _engines.Components2[i];
-                EngineDirection enabledEngines = engines.EnabledEngines;
+                EnginesStatsComponent enginesStats = _engines.Components3[i];
+                EngineDirection enabledEngines = _engines.Components2[i].EnabledEngines;
 
                 if (enabledEngines.HasFlag(EngineDirection.FORWARD))
                 {
                     Vector2 forceDirection = rigid.transform.rotation * Vector2.up;
-                    rigid.AddForce(engines.ForwardForce * forceDirection);
+                    rigid.AddForce(enginesStats.ForwardForce * forceDirection);
                 }
 
                 if (enabledEngines.HasFlag(EngineDirection.BACKWARD))
                 {
                     Vector2 forceDirection = rigid.transform.rotation * Vector2.down;
-                    rigid.AddForce(engines.BackwardForce * forceDirection);
+                    rigid.AddForce(enginesStats.BackwardForce * forceDirection);
                 }
 
                 if (enabledEngines.HasFlag(EngineDirection.TURN_LEFT))
                 {
-                    rigid.AddTorque(engines.TurnTorque);
+                    rigid.AddTorque(enginesStats.TurnTorque);
                 }
 
                 if (enabledEngines.HasFlag(EngineDirection.TURN_RIGHT))
                 {
-                    rigid.AddTorque(-engines.TurnTorque);
+                    rigid.AddTorque(-enginesStats.TurnTorque);
                 }
 
                 if (enabledEngines.HasFlag(EngineDirection.STRAFE_LEFT))
                 {
                     Vector2 forceDirection = rigid.transform.rotation * Vector2.left;
-                    rigid.AddForce(engines.ForwardForce * forceDirection);
+                    rigid.AddForce(enginesStats.ForwardForce * forceDirection);
                 }
 
                 if (enabledEngines.HasFlag(EngineDirection.STRAFE_RIGHT))
                 {
                     Vector2 forceDirection = rigid.transform.rotation * Vector2.right;
-                    rigid.AddForce(engines.ForwardForce * forceDirection);
+                    rigid.AddForce(enginesStats.ForwardForce * forceDirection);
                 }
             }
         }
 
-        private int GetLocalPlayer(long playerId)
+        private int GetSessionEntity(long sessionId)
         {
-            for (int i = 0; i < _players.EntitiesCount; i++)
-            {
-                if(_players.Components1[i].Id != playerId) continue;
+            if (!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
 
-                return _players.Entities[i];
-            }
-
-            return -1;
+            return _localConfig.Data.SessionIdToLocalEntity[sessionId];
         }
     }
 }

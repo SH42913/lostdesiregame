@@ -1,5 +1,6 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network;
 using Network.Sessions;
 using Ships;
 using Ships.Spawn;
@@ -16,9 +17,8 @@ namespace Players
 
         private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
         private EcsFilter<PlayerComponent, LocalMarkComponent> _localPlayer;
-        private EcsFilter<OwnedByPlayerComponent> _ownedObjects;
 
-        private EcsFilter<SendNetworkDataEvent> _sendEvents;
+        private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
         private EcsFilter<CreatePlayerEvent> _createEvents;
         
         public void Run()
@@ -27,14 +27,10 @@ namespace Players
             {
                 CreateLocalPlayer(_createEvents.Components1[i].Nickname);
             }
-            _createEvents.RemoveAllEntities();
 
             if (_sendEvents.EntitiesCount > 0)
             {
-                for (int i = 0; i < _localPlayer.EntitiesCount; i++)
-                {
-                    _ecsWorld.SendComponentToNetwork<PlayerComponent>(_localPlayer.Entities[i]);
-                }
+                SendPlayer();
             }
         }
 
@@ -45,13 +41,23 @@ namespace Players
             for (int i = 0; i < _localSession.EntitiesCount; i++)
             {
                 int localSessionEntity = _localSession.Entities[i];
+                long localSessionId = _localSession.Components1[i].Id;
+                
                 var player = _ecsWorld.AddComponent<PlayerComponent>(localSessionEntity);
                 player.Name = name;
-                player.Id = _networkConfig.Data.Random.NextInt64();
+                
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
-                _ecsWorld.SendEventToNetwork<SpawnShipEvent>().PlayerId = player.Id;
+                _ecsWorld.SendEventToNetwork<SpawnShipEvent>().SessionId = localSessionId;
 
-                _localConfig.Data.LocalPlayerKey = player.Id;
+                _localConfig.Data.LocalSessionId = localSessionId;
+            }
+        }
+
+        private void SendPlayer()
+        {
+            for (int i = 0; i < _localPlayer.EntitiesCount; i++)
+            {
+                _ecsWorld.SendComponentToNetwork<PlayerComponent>(_localPlayer.Entities[i]);
             }
         }
     }

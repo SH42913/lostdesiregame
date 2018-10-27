@@ -1,9 +1,9 @@
 ﻿using Leopotam.Ecs;
 
-namespace Network.Sessions
+namespace Network
 {
     [EcsIgnoreInFilter]
-    public class SendNetworkDataEvent
+    public class RefreshNetworkDataEvent
     {
         
     }

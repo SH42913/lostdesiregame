@@ -11,8 +11,6 @@ namespace Network
         private EcsWorld _ecsWorld;
         
         private EcsFilterSingle<LocalGameConfig> _localConfig;
-
-        private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
         
         private EcsFilter<ClientConnectedEvent> _connectedEvents;
         
@@ -20,8 +18,7 @@ namespace Network
         {
             if (_connectedEvents.EntitiesCount > 0)
             {
-                UnityEngine.Debug.Log("Connected");
-                _ecsWorld.CreateEntityWith<SendNetworkDataEvent>();
+                _ecsWorld.CreateEntityWith<RefreshNetworkDataEvent>();
             }
         }
     }

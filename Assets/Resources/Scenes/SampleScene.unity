@@ -457,6 +457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _createOnEnable: 1
   _removeOnDisable: 1
+  _checkForRigidBody: 0
   _components:
   - {fileID: 67194663}
   - {fileID: 67194662}
@@ -601,7 +602,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: 8888
 --- !u!222 &264149958
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -897,7 +898,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: 8888
 --- !u!222 &422629783
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1004,6 +1005,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _createOnEnable: 1
   _removeOnDisable: 1
+  _checkForRigidBody: 0
   _components:
   - {fileID: 519420030}
 --- !u!1 &616515537
@@ -1078,6 +1080,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _createOnEnable: 1
   _removeOnDisable: 1
+  _checkForRigidBody: 0
   _components:
   - {fileID: 616515542}
   - {fileID: 616515539}
@@ -3018,7 +3021,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: 127.0.0.1
 --- !u!222 &1545848033
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3100,6 +3103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _createOnEnable: 1
   _removeOnDisable: 1
+  _checkForRigidBody: 0
   _components:
   - {fileID: 1566002144}
   - {fileID: 1566002143}
@@ -3229,7 +3233,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: 127.0.0.1
 --- !u!222 &1591745945
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3628,6 +3632,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _createOnEnable: 1
   _removeOnDisable: 1
+  _checkForRigidBody: 0
   _components:
   - {fileID: 1959739406}
 --- !u!114 &1959739408

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Ships.Flight
+namespace Ships.Effects
 {
     public class EngineEffectsComponent
     {

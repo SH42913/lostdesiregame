@@ -1,13 +1,13 @@
 ﻿using System;
-using Cleaning;
 using ControlledCamera;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network;
 using Network.Sessions;
-using Players;
 using UnityEngine;
+using UnityIntegration;
 
-namespace Ships.Update
+namespace Ships
 {
     [EcsInject]
     public class ShipUpdateSystem : IEcsRunSystem
@@ -16,19 +16,18 @@ namespace Ships.Update
 
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<PositionComponent, UnityComponent, ShipComponent> _ships;
-        private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent> _shipsWithoutTransform;
-
+        private EcsFilter<PositionComponent, UnityComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _ships;
+        private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent, DestroyedShipMarkComponent> _shipsWithoutTransform;
         private EcsFilter<ShipComponent>.Exclude<LocalMarkComponent, RemoteMarkComponent> _newShips;
 
-        private EcsFilter<SendNetworkDataEvent> _sendEvents;
-        private EcsFilter<RemovePlayerEvent> _removePlayerEvents;
+        private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
+        private EcsFilter<RemoveSessionEvent> _removeSessionEvents;
         
         public void Run()
         {
             for (int i = 0; i < _newShips.EntitiesCount; i++)
             {
-                if (_newShips.Components1[i].PlayerId == _localConfig.Data.LocalPlayerKey)
+                if (_newShips.Components1[i].SessionId == _localConfig.Data.LocalSessionId)
                 {
                     _ecsWorld.AddComponent<LocalMarkComponent>(_newShips.Entities[i]);
                     _ecsWorld.AddComponent<CameraFollowTargetComponent>(_newShips.Entities[i]);
@@ -60,9 +59,21 @@ namespace Ships.Update
                     throw new ArgumentOutOfRangeException();
             }
 
-            for (int i = 0; i < _removePlayerEvents.EntitiesCount; i++)
+            for (int i = 0; i < _removeSessionEvents.EntitiesCount; i++)
             {
-                RemoveShip(_removePlayerEvents.Components1[i].PlayerId);
+                long sessionId = _removeSessionEvents.Components1[i].SessionId;
+                if(!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) continue;
+                
+                int sessionEntity = _localConfig.Data.SessionIdToLocalEntity[sessionId];
+                
+                var assignedShip = _ecsWorld.GetComponent<AssignedShipComponent>(sessionEntity);
+                if(assignedShip == null) continue;
+                
+                int shipEntity = assignedShip.LocalShipEntity;
+                if(!_ecsWorld.IsEntityExists(shipEntity)) continue;
+                
+                _ecsWorld.AddComponent<DestroyedShipMarkComponent>(shipEntity);
+                _ecsWorld.SendComponentToNetwork<DestroyedShipMarkComponent>(shipEntity);
             }
         }
 
@@ -100,19 +111,6 @@ namespace Ships.Update
                 position.PositionY = shipTransform.position.y;
 
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(_ships.Entities[i]);
-            }
-        }
-
-        private void RemoveShip(long playerId)
-        {
-            for (int i = 0; i < _ships.EntitiesCount; i++)
-            {
-                if (_ships.Components3[i].PlayerId != playerId) continue;
-
-                int shipEntity = _ships.Entities[i];
-                bool isNew;
-                _ecsWorld.EnsureComponent<RemoveMarkComponent>(shipEntity, out isNew);
-                _ecsWorld.SendComponentToNetwork<RemoveMarkComponent>(shipEntity);
             }
         }
     }

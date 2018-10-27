@@ -1,4 +1,4 @@
-﻿namespace Ships.Flight
+﻿namespace Ships
 {
     public class AssignedShipComponent
     {

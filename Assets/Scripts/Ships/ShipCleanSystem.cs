@@ -1,44 +1,43 @@
 ﻿using Leopotam.Ecs;
 using LeopotamGroup.Pooling;
-using Network.Sessions;
-using Players;
-using Ships;
+using Ships.Effects;
 using Ships.Flight;
+using Ships.Spawn;
+using UnityIntegration;
 
-namespace Cleaning
+namespace Ships
 {
     [EcsInject]
-    public class CleaningSystem : IEcsInitSystem, IEcsRunSystem
+    public class ShipCleanSystem : IEcsInitSystem, IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
 
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<UnityComponent> _unityComponents;
-        private EcsFilter<RigidBodyComponent> _rigidComponents;
+        private EcsFilter<ShipComponent, DestroyedShipMarkComponent> _destroyedShips;
         private EcsFilter<EngineEffectsComponent> _engineEffects;
         
-        private EcsFilter<RemoveMarkComponent, ShipComponent> _shipsToRemove;
-        private EcsFilter<RemoveMarkComponent> _markedToRemove;
-
-        private EcsFilter<RemovePlayerEvent> _removePlayerEvents;
-        private EcsFilter<SendNetworkDataEvent> _sendDataEvents;
         private EcsFilter<SwitchEngineEvent> _switchEngineEvents;
-    
+        private EcsFilter<SpawnShipEvent> _createEvents;
+
         public void Initialize()
         {
-        
+            
         }
-
+        
         public void Run()
         {
-            _removePlayerEvents.RemoveAllEntities();
-            _sendDataEvents.RemoveAllEntities();
             _switchEngineEvents.RemoveAllEntities();
+            _createEvents.RemoveAllEntities();
+            
+            DestroyShips();
+        }
 
-            for (int i = 0; i < _shipsToRemove.EntitiesCount; i++)
+        private void DestroyShips()
+        {
+            for (int i = 0; i < _destroyedShips.EntitiesCount; i++)
             {
-                int shipEntity = _shipsToRemove.Entities[i];
+                int shipEntity = _destroyedShips.Entities[i];
                 var engine = _ecsWorld.GetComponent<EngineEffectsComponent>(shipEntity);
                 if (engine != null)
                 {
@@ -62,28 +61,18 @@ namespace Cleaning
                     _localConfig.Data.ShipContainer.Recycle(unity.Transform.GetComponent<IPoolObject>());
                     unity.Transform = null;
                 }
-            }
-
-            for (int i = 0; i < _markedToRemove.EntitiesCount; i++)
-            {
-                _ecsWorld.RemoveEntity(_markedToRemove.Entities[i]);
+                
+                _ecsWorld.RemoveEntity(shipEntity);
             }
         }
 
         public void Destroy()
         {
-            _localConfig.Data.ShipContainer = null;
-        
-            for (int i = 0; i < _unityComponents.EntitiesCount; i++)
-            {
-                _unityComponents.Components1[i].Transform = null;
-            }
+            ClearEngineEffects();
+        }
 
-            for (int i = 0; i < _rigidComponents.EntitiesCount; i++)
-            {
-                _rigidComponents.Components1[i].Rigidbody2D = null;
-            }
-
+        private void ClearEngineEffects()
+        {
             for (int i = 0; i < _engineEffects.EntitiesCount; i++)
             {
                 _engineEffects.Components1[i].ForwardEngines = null;

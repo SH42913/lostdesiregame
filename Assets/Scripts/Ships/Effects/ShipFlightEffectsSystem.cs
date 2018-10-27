@@ -1,14 +1,15 @@
 ﻿using Leopotam.Ecs;
+using Ships.Flight;
 using UnityEngine;
 
-namespace Ships.Flight
+namespace Ships.Effects
 {
     [EcsInject]
     public class ShipFlightEffectsSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilter<EnginesComponent, EngineEffectsComponent> _engines;
+        private EcsFilter<EnginesStateComponent, EngineEffectsComponent> _engines;
         
         public void Run()
         {
@@ -30,7 +31,7 @@ namespace Ships.Flight
             foreach (var engineEffect in engines)
             {
                 var engineEffectEmission = engineEffect.emission;
-                engineEffectEmission.enabled = !engineEffect.emission.enabled && enabledEngines.HasFlag(target);
+                engineEffectEmission.enabled = enabledEngines.HasFlag(target);
             }
         }
     }

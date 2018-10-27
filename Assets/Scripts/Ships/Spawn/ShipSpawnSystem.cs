@@ -1,8 +1,10 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network.Sessions;
 using Players;
 using Ships.Flight;
 using UnityEngine;
+using UnityIntegration;
 
 namespace Ships.Spawn
 {
@@ -21,52 +23,49 @@ namespace Ships.Spawn
             {
                 SpawnShips();
             }
-            _createEvents.RemoveAllEntities();
         }
 
         private void SpawnShips()
         {
             for (int i = 0; i < _createEvents.EntitiesCount; i++)
             {
-                long playerKey = _createEvents.Components1[i].PlayerId;
-                int localPlayerEntity = FindLocalPlayerEntity(playerKey);
+                long sessionId = _createEvents.Components1[i].SessionId;
+                int sessionLocalEntity = GetSessionEntity(sessionId);
                 
-                if(localPlayerEntity < 0 || !_ecsWorld.IsEntityExists(localPlayerEntity)) continue;
-                if(_ecsWorld.GetComponent<AssignedShipComponent>(localPlayerEntity) != null) continue;
+                if(sessionLocalEntity < 0 || !_ecsWorld.IsEntityExists(sessionLocalEntity)) continue;
+                if(_ecsWorld.GetComponent<AssignedShipComponent>(sessionLocalEntity) != null) continue;
 
                 Transform shipObject = _localConfig.Data.ShipContainer.Get().PoolTransform;
                 shipObject.gameObject.SetActive(true);
-                shipObject.rotation = Quaternion.Euler(0, 0, Random.Range(0, 360));
+                shipObject.position = new Vector3(Random.Range(-25, 25), 0);
+                shipObject.rotation = Quaternion.identity;
                 
                 ShipComponent ship;
                 PositionComponent position;
                 int shipEntity = _ecsWorld.CreateEntityWith(out ship, out position);
-                ship.PlayerId = playerKey;
+                ship.SessionId = sessionId;
                 
                 position.PositionX = shipObject.position.x;
                 position.PositionY = shipObject.position.y;
                 position.Rotation = shipObject.eulerAngles.z;
 
-                var ownedBy = _ecsWorld.AddComponent<OwnedByPlayerComponent>(shipEntity);
-                ownedBy.LocalPlayerEntity = localPlayerEntity;
-                ownedBy.PlayerId = playerKey;
+                var ownedBy = _ecsWorld.AddComponent<OwnedBySessionComponent>(shipEntity);
+                ownedBy.SessionId = sessionId;
                 
-                _ecsWorld.AddComponent<AssignedShipComponent>(localPlayerEntity).LocalShipEntity = shipEntity;
+                _ecsWorld.AddComponent<AssignedShipComponent>(sessionLocalEntity).LocalShipEntity = shipEntity;
                 
                 shipObject.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
                 _ecsWorld.SendComponentToNetwork<ShipComponent>(shipEntity);
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
+                _ecsWorld.SendComponentToNetwork<EnginesStatsComponent>(shipEntity);
             }
         }
 
-        private int FindLocalPlayerEntity(long playerKey)
+        private int GetSessionEntity(long sessionId)
         {
-            for (int i = 0; i < _players.EntitiesCount; i++)
-            {
-                if (_players.Components1[i].Id == playerKey) return _players.Entities[i];
-            }
+            if (!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
 
-            return -1;
+            return _localConfig.Data.SessionIdToLocalEntity[sessionId];
         }
     }
 }
