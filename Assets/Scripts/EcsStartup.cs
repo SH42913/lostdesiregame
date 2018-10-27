@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cleaning;
+using ControlledCamera;
 using DebugSystems.StatusString;
 using Dialogs;
 using Dialogs.ConnectToDialog;
@@ -53,6 +54,7 @@ internal sealed class EcsStartup : MonoBehaviour {
             .AddConnectionSystems()
             .AddDialogsSystems()
             .AddShipSystems()
+            .AddCameraSystems()
             .AddWorldSystems()
             .AddDebugSystems();
             
@@ -70,28 +72,38 @@ internal sealed class EcsStartup : MonoBehaviour {
 
     private void Update () 
     {
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
-            switchEvent.Direction = EngineDirection.FORWARD;
-            switchEvent.Enable = true;
-            switchEvent.PlayerId = _world
-                .GetFilter<EcsFilter<PlayerComponent, LocalSessionMarkComponent>>()
-                .Components1[0]
-                .Id;
-        }
-        if (Input.GetKeyUp(KeyCode.W))
-        {
-            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
-            switchEvent.Direction = EngineDirection.FORWARD;
-            switchEvent.Enable = false;
-            switchEvent.PlayerId = _world
-                .GetFilter<EcsFilter<PlayerComponent, LocalSessionMarkComponent>>()
-                .Components1[0]
-                .Id;
-        }
+        CheckKey(KeyCode.W, EngineDirection.FORWARD);
+        CheckKey(KeyCode.S, EngineDirection.BACKWARD);
+        CheckKey(KeyCode.A, EngineDirection.STRAFE_LEFT);
+        CheckKey(KeyCode.D, EngineDirection.STRAFE_RIGHT);
+        CheckKey(KeyCode.Q, EngineDirection.TURN_LEFT);
+        CheckKey(KeyCode.E, EngineDirection.TURN_RIGHT);
         
         _systems.Run ();
+    }
+
+    private void CheckKey(KeyCode key, EngineDirection direction)
+    {
+        if (Input.GetKeyDown(key))
+        {
+            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
+            switchEvent.Direction = direction;
+            switchEvent.Enable = true;
+            switchEvent.PlayerId = _world
+                .GetFilter<EcsFilter<PlayerComponent, LocalMarkComponent>>()
+                .Components1[0]
+                .Id;
+        }
+        if (Input.GetKeyUp(key))
+        {
+            var switchEvent = _world.SendEventToNetwork<SwitchEngineEvent>();
+            switchEvent.Direction = direction;
+            switchEvent.Enable = false;
+            switchEvent.PlayerId = _world
+                .GetFilter<EcsFilter<PlayerComponent, LocalMarkComponent>>()
+                .Components1[0]
+                .Id;
+        }
     }
 
     private void GenerateStartEvents()
@@ -165,6 +177,12 @@ public static class EcsWorldExtensions
             .Add(new ShipFlightSystem())
             .Add(new ShipFlightEffectsSystem())
             .Add(new ShipUpdateSystem());
+    }
+
+    public static EcsSystems AddCameraSystems(this EcsSystems systems)
+    {
+        return systems
+            .Add(new ControlledCameraSystem());
     }
 
     public static EcsSystems AddDebugSystems(this EcsSystems systems)

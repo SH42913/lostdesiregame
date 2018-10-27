@@ -12,7 +12,7 @@ namespace Network
         
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
+        private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
         
         private EcsFilter<ClientConnectedEvent> _connectedEvents;
         

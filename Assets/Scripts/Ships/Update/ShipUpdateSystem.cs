@@ -1,5 +1,6 @@
 ﻿using System;
 using Cleaning;
+using ControlledCamera;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Network.Sessions;
@@ -18,11 +19,26 @@ namespace Ships.Update
         private EcsFilter<PositionComponent, UnityComponent, ShipComponent> _ships;
         private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent> _shipsWithoutTransform;
 
+        private EcsFilter<ShipComponent>.Exclude<LocalMarkComponent, RemoteMarkComponent> _newShips;
+
         private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<RemovePlayerEvent> _removePlayerEvents;
         
         public void Run()
         {
+            for (int i = 0; i < _newShips.EntitiesCount; i++)
+            {
+                if (_newShips.Components1[i].PlayerId == _localConfig.Data.LocalPlayerKey)
+                {
+                    _ecsWorld.AddComponent<LocalMarkComponent>(_newShips.Entities[i]);
+                    _ecsWorld.AddComponent<CameraFollowTargetComponent>(_newShips.Entities[i]);
+                }
+                else
+                {
+                    _ecsWorld.AddComponent<RemoteMarkComponent>(_newShips.Entities[i]);
+                }
+            }
+            
             for (int i = 0; i < _shipsWithoutTransform.EntitiesCount; i++)
             {
                 int shipEntity = _shipsWithoutTransform.Entities[i];

@@ -12,7 +12,7 @@ namespace Network.Sessions
 
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
 
-        private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
+        private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
 
         private EcsFilter<SendNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateLocalSessionEvent> _createEvent;
@@ -54,8 +54,8 @@ namespace Network.Sessions
         {
             if (_localSession.EntitiesCount > 0) return;
             SessionComponent session;
-            LocalSessionMarkComponent localSession;
-            _ecsWorld.CreateEntityWith(out session, out localSession);
+            LocalMarkComponent local;
+            _ecsWorld.CreateEntityWith(out session, out local);
             session.Address = _networkConfig.Data.LocalAddress;
             session.Port = _networkConfig.Data.LocalPort;
         }

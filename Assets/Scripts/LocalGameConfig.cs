@@ -10,4 +10,5 @@ public class LocalGameConfig
 {
     public ClientType ClientType;
     public PoolContainer ShipContainer;
+    public long LocalPlayerKey;
 }

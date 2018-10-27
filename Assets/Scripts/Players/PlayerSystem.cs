@@ -10,10 +10,12 @@ namespace Players
     public class PlayerSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
+
+        private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
 
-        private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
-        private EcsFilter<PlayerComponent, LocalSessionMarkComponent> _localPlayer;
+        private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
+        private EcsFilter<PlayerComponent, LocalMarkComponent> _localPlayer;
         private EcsFilter<OwnedByPlayerComponent> _ownedObjects;
 
         private EcsFilter<SendNetworkDataEvent> _sendEvents;
@@ -48,6 +50,8 @@ namespace Players
                 player.Id = _networkConfig.Data.Random.NextInt64();
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
                 _ecsWorld.SendEventToNetwork<SpawnShipEvent>().PlayerId = player.Id;
+
+                _localConfig.Data.LocalPlayerKey = player.Id;
             }
         }
     }

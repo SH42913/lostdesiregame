@@ -50,12 +50,41 @@ namespace Ships.Flight
             for (int i = 0; i < _engines.EntitiesCount; i++)
             {
                 Rigidbody2D rigid = _engines.Components1[i].Rigidbody2D;
-                EngineDirection enabledEngines = _engines.Components2[i].EnabledEngines;
+                EnginesComponent engines = _engines.Components2[i];
+                EngineDirection enabledEngines = engines.EnabledEngines;
 
                 if (enabledEngines.HasFlag(EngineDirection.FORWARD))
                 {
                     Vector2 forceDirection = rigid.transform.rotation * Vector2.up;
-                    rigid.AddForce(_engines.Components2[i].ForwardForce * forceDirection);
+                    rigid.AddForce(engines.ForwardForce * forceDirection);
+                }
+
+                if (enabledEngines.HasFlag(EngineDirection.BACKWARD))
+                {
+                    Vector2 forceDirection = rigid.transform.rotation * Vector2.down;
+                    rigid.AddForce(engines.BackwardForce * forceDirection);
+                }
+
+                if (enabledEngines.HasFlag(EngineDirection.TURN_LEFT))
+                {
+                    rigid.AddTorque(engines.TurnTorque);
+                }
+
+                if (enabledEngines.HasFlag(EngineDirection.TURN_RIGHT))
+                {
+                    rigid.AddTorque(-engines.TurnTorque);
+                }
+
+                if (enabledEngines.HasFlag(EngineDirection.STRAFE_LEFT))
+                {
+                    Vector2 forceDirection = rigid.transform.rotation * Vector2.left;
+                    rigid.AddForce(engines.ForwardForce * forceDirection);
+                }
+
+                if (enabledEngines.HasFlag(EngineDirection.STRAFE_RIGHT))
+                {
+                    Vector2 forceDirection = rigid.transform.rotation * Vector2.right;
+                    rigid.AddForce(engines.ForwardForce * forceDirection);
                 }
             }
         }
