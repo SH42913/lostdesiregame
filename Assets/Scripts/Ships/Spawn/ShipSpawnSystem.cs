@@ -49,6 +49,11 @@ namespace Ships.Spawn
                 position.PositionY = shipObject.position.y;
                 position.Rotation = shipObject.eulerAngles.z;
 
+                var velocity = _ecsWorld.AddComponent<VelocityComponent>(shipEntity);
+                velocity.AngularVelocity = 0;
+                velocity.VelocityX = 0;
+                velocity.VelocityY = 0;
+
                 var ownedBy = _ecsWorld.AddComponent<OwnedBySessionComponent>(shipEntity);
                 ownedBy.SessionId = sessionId;
                 
@@ -57,6 +62,7 @@ namespace Ships.Spawn
                 shipObject.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
                 _ecsWorld.SendComponentToNetwork<ShipComponent>(shipEntity);
                 _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
+                _ecsWorld.SendComponentToNetwork<VelocityComponent>(shipEntity);
                 _ecsWorld.SendComponentToNetwork<EnginesStatsComponent>(shipEntity);
             }
         }

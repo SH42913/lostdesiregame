@@ -101,6 +101,7 @@ internal sealed class EcsStartup : MonoBehaviour {
             new NetworkEventProcessSystem<SpawnShipEvent>(SpawnShipEvent.NewToOldConverter),
             new NetworkComponentProcessSystem<ShipComponent>(ShipComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<PositionComponent>(PositionComponent.NewToOldConverter),
+            new NetworkComponentProcessSystem<VelocityComponent>(VelocityComponent.NewToOldConverter),
             new NetworkComponentProcessSystem<DestroyedShipMarkComponent>(DestroyedShipMarkComponent.NewToOldConverter),
             new NetworkEventProcessSystem<SwitchEngineEvent>(SwitchEngineEvent.NewToOldConverter),
             new NetworkComponentProcessSystem<EnginesStatsComponent>(EnginesStatsComponent.NewToOldConverter),

@@ -16,8 +16,9 @@ namespace Ships
 
         private EcsFilterSingle<LocalGameConfig> _localConfig;
 
-        private EcsFilter<PositionComponent, UnityComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _ships;
-        private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent, DestroyedShipMarkComponent> _shipsWithoutTransform;
+        private EcsFilter<PositionComponent, UnityComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _unityShips;
+        private EcsFilter<VelocityComponent, RigidBodyComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _rigidShips;
+        private EcsFilter<PositionComponent, ShipComponent>.Exclude<UnityComponent, DestroyedShipMarkComponent> _nonUnityShips;
         private EcsFilter<ShipComponent>.Exclude<LocalMarkComponent, RemoteMarkComponent> _newShips;
 
         private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
@@ -38,9 +39,9 @@ namespace Ships
                 }
             }
             
-            for (int i = 0; i < _shipsWithoutTransform.EntitiesCount; i++)
+            for (int i = 0; i < _nonUnityShips.EntitiesCount; i++)
             {
-                int shipEntity = _shipsWithoutTransform.Entities[i];
+                int shipEntity = _nonUnityShips.Entities[i];
 
                 Transform shipTransform = _localConfig.Data.ShipContainer.Get().PoolTransform;
                 shipTransform.gameObject.SetActive(true);
@@ -51,9 +52,11 @@ namespace Ships
             {
                 case ClientType.SERVER:
                     UpdatePositionsOnServer();
+                    UpdateVelocityOnServer();
                     break;
                 case ClientType.CLIENT:
                     UpdatePositionsOnClient();
+                    UpdateVelocityOnClient();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -79,13 +82,25 @@ namespace Ships
 
         private void UpdatePositionsOnClient()
         {
-            for (int i = 0; i < _ships.EntitiesCount; i++)
+            for (int i = 0; i < _unityShips.EntitiesCount; i++)
             {
-                PositionComponent position = _ships.Components1[i];
-                Transform shipTransform = _ships.Components2[i].Transform;
+                PositionComponent position = _unityShips.Components1[i];
+                Transform shipTransform = _unityShips.Components2[i].Transform;
 
                 shipTransform.position = new Vector3(position.PositionX, position.PositionY);
                 shipTransform.rotation = Quaternion.Euler(0, 0, position.Rotation);
+            }
+        }
+
+        private void UpdateVelocityOnClient()
+        {
+            for (int i = 0; i < _rigidShips.EntitiesCount; i++)
+            {
+                VelocityComponent velocity = _rigidShips.Components1[i];
+                Rigidbody2D shipRigid = _rigidShips.Components2[i].Rigidbody2D;
+
+                shipRigid.velocity = new Vector2(velocity.VelocityX, velocity.VelocityY);
+                shipRigid.angularVelocity = velocity.AngularVelocity;
             }
         }
 
@@ -93,24 +108,48 @@ namespace Ships
         {
             if (_sendEvents.EntitiesCount > 0)
             {
-                for (int i = 0; i < _ships.EntitiesCount; i++)
+                for (int i = 0; i < _unityShips.EntitiesCount; i++)
                 {
-                    int shipEntity = _ships.Entities[i];
+                    int shipEntity = _unityShips.Entities[i];
                     _ecsWorld.SendComponentToNetwork<ShipComponent>(shipEntity);
                     _ecsWorld.SendComponentToNetwork<PositionComponent>(shipEntity);
                 }
             }
             
-            for (int i = 0; i < _ships.EntitiesCount; i++)
+            for (int i = 0; i < _unityShips.EntitiesCount; i++)
             {
-                Transform shipTransform = _ships.Components2[i].Transform;
-                PositionComponent position = _ships.Components1[i];
+                PositionComponent position = _unityShips.Components1[i];
+                Transform shipTransform = _unityShips.Components2[i].Transform;
 
                 position.Rotation = shipTransform.rotation.eulerAngles.z;
                 position.PositionX = shipTransform.position.x;
                 position.PositionY = shipTransform.position.y;
 
-                _ecsWorld.SendComponentToNetwork<PositionComponent>(_ships.Entities[i]);
+                _ecsWorld.SendComponentToNetwork<PositionComponent>(_unityShips.Entities[i]);
+            }
+        }
+
+        private void UpdateVelocityOnServer()
+        {
+            if (_sendEvents.EntitiesCount > 0)
+            {
+                for (int i = 0; i < _rigidShips.EntitiesCount; i++)
+                {
+                    int shipEntity = _rigidShips.Entities[i];
+                    _ecsWorld.SendComponentToNetwork<VelocityComponent>(shipEntity);
+                }
+            }
+            
+            for (int i = 0; i < _rigidShips.EntitiesCount; i++)
+            {
+                VelocityComponent velocity = _rigidShips.Components1[i];
+                Rigidbody2D rigid = _rigidShips.Components2[i].Rigidbody2D;
+
+                velocity.VelocityX = rigid.velocity.x;
+                velocity.VelocityY = rigid.velocity.y;
+                velocity.AngularVelocity = rigid.angularVelocity;
+
+                _ecsWorld.SendComponentToNetwork<VelocityComponent>(_rigidShips.Entities[i]);
             }
         }
     }
