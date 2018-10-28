@@ -1,5 +1,6 @@
 ﻿using Leopotam.Ecs;
 using UnityEngine.UI;
+using UnityIntegration;
 
 namespace DebugSystems.StatusString
 {

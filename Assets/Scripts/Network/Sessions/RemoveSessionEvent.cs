@@ -2,6 +2,6 @@
 {
     public class RemoveSessionEvent
     {
-        public int LocalEntity;
+        public long SessionId;
     }
 }

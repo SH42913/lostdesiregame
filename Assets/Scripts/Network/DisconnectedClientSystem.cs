@@ -1,6 +1,7 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
 using Network.Sessions;
+using UnityEngine;
 
 namespace Network
 {
@@ -30,7 +31,7 @@ namespace Network
                 SessionComponent session = _sessions.Components1[i];
                 if(session.Address != address || session.Port != port) continue;
 
-                _ecsWorld.CreateEntityWith<RemoveSessionEvent>().LocalEntity = _sessions.Entities[i];
+                _ecsWorld.CreateEntityWith<RemoveSessionEvent>().SessionId = session.Id;
                 return;
             }
         }

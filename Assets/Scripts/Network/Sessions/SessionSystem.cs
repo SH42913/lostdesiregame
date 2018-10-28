@@ -1,5 +1,7 @@
 ﻿using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Players;
+using UnityEngine;
 using World;
 
 namespace Network.Sessions
@@ -9,48 +11,58 @@ namespace Network.Sessions
     {
         private EcsWorld _ecsWorld;
 
+        private EcsFilterSingle<LocalGameConfig> _localConfig;
         private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
 
-        private EcsFilter<SessionComponent, LocalSessionMarkComponent> _localSession;
+        private EcsFilter<SessionComponent>.Exclude<LocalMarkComponent, RemoteMarkComponent> _undefinedSessions;
+        private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateLocalSessionEvent> _createEvent;
         private EcsFilter<RemoveSessionEvent> _removeEvents;
         
         public void Run()
         {
+            for (int i = 0; i < _undefinedSessions.EntitiesCount; i++)
+            {
+                long remoteSessionId = _undefinedSessions.Components1[i].Id;
+                int localSessionEntity = _undefinedSessions.Entities[i];
+
+                _ecsWorld.AddComponent<RemoteMarkComponent>(localSessionEntity);
+                _localConfig.Data.SessionIdToLocalEntity.Add(remoteSessionId, localSessionEntity);
+            }
+            
             if (_createEvent.EntitiesCount > 0)
             {
-                _createEvent.RemoveAllEntities();
-
                 CreateLocalSession();
             }
 
             if (_sendEvents.EntitiesCount > 0)
             {
-                for (int i = 0; i < _localSession.EntitiesCount; i++)
-                {
-                    _ecsWorld.SendComponentToNetwork<SessionComponent>(_localSession.Entities[i]);
-                }
+                SendLocalSession();
             }
-
-            for (int i = 0; i < _removeEvents.EntitiesCount; i++)
-            {
-                int entityToRemove = _removeEvents.Components1[i].LocalEntity;
-                
-                _ecsWorld.RemoveEntity(entityToRemove);
-            }
-            _removeEvents.RemoveAllEntities();
         }
 
         private void CreateLocalSession()
         {
             if (_localSession.EntitiesCount > 0) return;
+            
             SessionComponent session;
-            LocalSessionMarkComponent localSession;
-            _ecsWorld.CreateEntityWith(out session, out localSession);
+            LocalMarkComponent local;
+            int sessionEntity = _ecsWorld.CreateEntityWith(out session, out local);
             session.Address = _networkConfig.Data.LocalAddress;
             session.Port = _networkConfig.Data.LocalPort;
+            session.Id = _networkConfig.Data.Random.NextInt64();
+            
+            _localConfig.Data.SessionIdToLocalEntity.Add(session.Id, sessionEntity);
+        }
+
+        private void SendLocalSession()
+        {
+            for (int i = 0; i < _localSession.EntitiesCount; i++)
+            {
+                _ecsWorld.SendComponentToNetwork<SessionComponent>(_localSession.Entities[i]);
+            }
         }
     }
 }

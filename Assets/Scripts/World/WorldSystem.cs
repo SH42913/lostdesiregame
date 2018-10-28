@@ -1,6 +1,7 @@
 ﻿using Dialogs.CreatePlayerDialog;
 using Leopotam.Ecs;
 using Leopotam.Ecs.Net;
+using Network;
 using Network.Sessions;
 
 namespace World
@@ -14,7 +15,7 @@ namespace World
 
         private EcsFilter<WorldComponent> _worlds;
 
-        private EcsFilter<SendBaseInfo> _sendEvents;
+        private EcsFilter<RefreshNetworkDataEvent> _sendEvents;
         private EcsFilter<CreateWorldEvent> _createEvents;
         
         public void Run()
@@ -28,8 +29,6 @@ namespace World
             }
             
             if(_sendEvents.EntitiesCount <= 0) return;
-            _sendEvents.RemoveAllEntities();
-
             if (_localConfig.Data.ClientType == ClientType.CLIENT) return;
             for (int i = 0; i < _worlds.EntitiesCount; i++)
             {
