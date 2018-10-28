@@ -33,13 +33,17 @@ internal sealed class EcsStartup : MonoBehaviour {
     private void OnEnable () 
     {
         _world = new EcsWorld ();
-        var networkConfig = EcsFilterSingle<EcsNetworkConfig>.Create(_world);
-        var localConfig = EcsFilterSingle<LocalGameConfig>.Create(_world);
-        localConfig.ShipContainer = _shipContainer;
-        localConfig.SessionIdToLocalEntity = new Dictionary<long, int>();
-        
-        networkConfig.EcsNetworkListener = new TcpRetranslator();
-        networkConfig.Serializator = new JsonSerializator();
+        var networkConfig = new EcsNetworkConfig
+        {
+            EcsNetworkListener = new TcpRetranslator(),
+            Serializator = new JsonSerializator()
+        };
+
+        var localConfig = new LocalGameConfig
+        {
+            ShipContainer = _shipContainer,
+            SessionIdToLocalEntity = new Dictionary<long, int>()
+        };
         
 #if UNITY_EDITOR
         Leopotam.Ecs.UnityIntegration.EcsWorldObserver.Create (_world);
@@ -64,7 +68,10 @@ internal sealed class EcsStartup : MonoBehaviour {
         AddNetworkProcessingSystems(_systems);
         _networkProcessingSystems = null;
 
-        _systems.AddCleanSystems();
+        _systems
+            .AddCleanSystems()
+            .Inject(networkConfig)
+            .Inject(localConfig);
         _systems.Initialize ();
         GenerateStartEvents();
         

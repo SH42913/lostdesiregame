@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using Leopotam.Ecs.Net;
 
 namespace Network.Sessions
 {
@@ -7,7 +8,7 @@ namespace Network.Sessions
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<CreateLocalSessionEvent> _createSessionEvents;
         private EcsFilter<RemoveSessionEvent> _removeSessionEvents;
@@ -21,10 +22,10 @@ namespace Network.Sessions
             for (int i = 0; i < _removeSessionEvents.EntitiesCount; i++)
             {
                 long sessionId = _removeSessionEvents.Components1[i].SessionId;
-                int sessionLocalEntity = _localConfig.Data.SessionIdToLocalEntity[sessionId];
+                int sessionLocalEntity = _localConfig.SessionIdToLocalEntity[sessionId];
                 
                 _ecsWorld.RemoveEntity(sessionLocalEntity);
-                _localConfig.Data.SessionIdToLocalEntity.Remove(sessionId);
+                _localConfig.SessionIdToLocalEntity.Remove(sessionId);
             }
             _removeSessionEvents.RemoveAllEntities();
         }

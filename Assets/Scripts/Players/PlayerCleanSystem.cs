@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using Leopotam.Ecs.Net;
 
 namespace Players
 {

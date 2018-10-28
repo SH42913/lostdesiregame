@@ -11,8 +11,7 @@ namespace Dialogs.ConnectToDialog
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<DialogComponent, ConnectToDialogComponent> _dialogs;
         private EcsFilter<ShowConnectToDialogEvent> _showEvents;
@@ -57,7 +56,7 @@ namespace Dialogs.ConnectToDialog
             
             if(!created) return;
 
-            _localConfig.Data.ClientType = ClientType.CLIENT;
+            _localConfig.ClientType = ClientType.CLIENT;
 
             ConnectToEvent connect;
             _ecsWorld.CreateEntityWith(out connect);

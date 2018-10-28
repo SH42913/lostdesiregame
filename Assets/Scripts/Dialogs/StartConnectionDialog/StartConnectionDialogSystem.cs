@@ -9,8 +9,7 @@ namespace Dialogs.StartConnectionDialog
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+        private EcsNetworkConfig _networkConfig;
         
         private EcsFilter<DialogComponent, StartConnectionDialogComponent> _dialogs;
         
@@ -46,8 +45,8 @@ namespace Dialogs.StartConnectionDialog
                 if(!IPAddress.TryParse(dialog.LocalAddress.text, out ip) ||
                    !short.TryParse(dialog.LocalPort.text, out port)) continue;
 
-                _networkConfig.Data.LocalAddress = dialog.LocalAddress.text;
-                _networkConfig.Data.LocalPort = port;
+                _networkConfig.LocalAddress = dialog.LocalAddress.text;
+                _networkConfig.LocalPort = port;
                 created = true;
             }
             if(!created) return;

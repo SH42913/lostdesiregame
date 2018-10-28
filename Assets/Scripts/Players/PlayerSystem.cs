@@ -12,8 +12,7 @@ namespace Players
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
         private EcsFilter<PlayerComponent, LocalMarkComponent> _localPlayer;
@@ -49,7 +48,7 @@ namespace Players
                 _ecsWorld.SendComponentToNetwork<PlayerComponent>(localSessionEntity);
                 _ecsWorld.SendEventToNetwork<SpawnShipEvent>().SessionId = localSessionId;
 
-                _localConfig.Data.LocalSessionId = localSessionId;
+                _localConfig.LocalSessionId = localSessionId;
             }
         }
 

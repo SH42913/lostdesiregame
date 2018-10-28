@@ -11,7 +11,7 @@ namespace World
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<WorldComponent> _worlds;
 
@@ -29,7 +29,8 @@ namespace World
             }
             
             if(_sendEvents.EntitiesCount <= 0) return;
-            if (_localConfig.Data.ClientType == ClientType.CLIENT) return;
+            if (_localConfig.ClientType == ClientType.CLIENT) return;
+            
             for (int i = 0; i < _worlds.EntitiesCount; i++)
             {
                 _ecsWorld.SendComponentToNetwork<WorldComponent>(_worlds.Entities[i]);

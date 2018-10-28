@@ -11,8 +11,8 @@ namespace Network.Sessions
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+        private LocalGameConfig _localConfig;
+        private EcsNetworkConfig _networkConfig;
 
         private EcsFilter<SessionComponent>.Exclude<LocalMarkComponent, RemoteMarkComponent> _undefinedSessions;
         private EcsFilter<SessionComponent, LocalMarkComponent> _localSession;
@@ -29,7 +29,7 @@ namespace Network.Sessions
                 int localSessionEntity = _undefinedSessions.Entities[i];
 
                 _ecsWorld.AddComponent<RemoteMarkComponent>(localSessionEntity);
-                _localConfig.Data.SessionIdToLocalEntity.Add(remoteSessionId, localSessionEntity);
+                _localConfig.SessionIdToLocalEntity.Add(remoteSessionId, localSessionEntity);
             }
             
             if (_createEvent.EntitiesCount > 0)
@@ -50,11 +50,11 @@ namespace Network.Sessions
             SessionComponent session;
             LocalMarkComponent local;
             int sessionEntity = _ecsWorld.CreateEntityWith(out session, out local);
-            session.Address = _networkConfig.Data.LocalAddress;
-            session.Port = _networkConfig.Data.LocalPort;
-            session.Id = _networkConfig.Data.Random.NextInt64();
+            session.Address = _networkConfig.LocalAddress;
+            session.Port = _networkConfig.LocalPort;
+            session.Id = _networkConfig.Random.NextInt64();
             
-            _localConfig.Data.SessionIdToLocalEntity.Add(session.Id, sessionEntity);
+            _localConfig.SessionIdToLocalEntity.Add(session.Id, sessionEntity);
         }
 
         private void SendLocalSession()

@@ -9,8 +9,8 @@ namespace DebugSystems.StatusString
     {
         private EcsWorld _ecsWorld;
         
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        private EcsFilterSingle<EcsNetworkConfig> _networkConfig;
+        private LocalGameConfig _localConfig;
+        private EcsNetworkConfig _networkConfig;
 
         private EcsFilter<SessionComponent> _sessions;
         private EcsFilter<StatusStringComponent> _statusStrings;
@@ -30,9 +30,9 @@ namespace DebugSystems.StatusString
 
         private string GetStatusString()
         {
-            return " LocalAddress: " + _networkConfig.Data.LocalAddress + ":" + _networkConfig.Data.LocalPort +
-                   " Type: " + _localConfig.Data.ClientType +
-                   " IsRunning: " + _networkConfig.Data.EcsNetworkListener.IsRunning +
+            return " LocalAddress: " + _networkConfig.LocalAddress + ":" + _networkConfig.LocalPort +
+                   " Type: " + _localConfig.ClientType +
+                   " IsRunning: " + _networkConfig.EcsNetworkListener.IsRunning +
                    " Sessions: " + _sessions.EntitiesCount;
         }
 

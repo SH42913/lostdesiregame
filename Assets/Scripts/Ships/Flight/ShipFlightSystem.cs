@@ -11,15 +11,14 @@ namespace Ships.Flight
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<SwitchEngineEvent> _switchEvents;
-        private EcsFilter<PlayerComponent> _players;
         private EcsFilter<RigidBodyComponent, EnginesStateComponent, EnginesStatsComponent> _engines;
         
         public void Run()
         {
-            if(_localConfig.Data.ClientType == ClientType.CLIENT) return;
+            if(_localConfig.ClientType == ClientType.CLIENT) return;
             
             SwitchEngines();
             ApplyForces();
@@ -101,9 +100,9 @@ namespace Ships.Flight
 
         private int GetSessionEntity(long sessionId)
         {
-            if (!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
+            if (!_localConfig.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
 
-            return _localConfig.Data.SessionIdToLocalEntity[sessionId];
+            return _localConfig.SessionIdToLocalEntity[sessionId];
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Ships
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<PositionComponent, UnityComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _unityShips;
         private EcsFilter<VelocityComponent, RigidBodyComponent, ShipComponent>.Exclude<DestroyedShipMarkComponent> _rigidShips;
@@ -28,7 +28,7 @@ namespace Ships
         {
             for (int i = 0; i < _newShips.EntitiesCount; i++)
             {
-                if (_newShips.Components1[i].SessionId == _localConfig.Data.LocalSessionId)
+                if (_newShips.Components1[i].SessionId == _localConfig.LocalSessionId)
                 {
                     _ecsWorld.AddComponent<LocalMarkComponent>(_newShips.Entities[i]);
                     _ecsWorld.AddComponent<CameraFollowTargetComponent>(_newShips.Entities[i]);
@@ -43,12 +43,12 @@ namespace Ships
             {
                 int shipEntity = _nonUnityShips.Entities[i];
 
-                Transform shipTransform = _localConfig.Data.ShipContainer.Get().PoolTransform;
+                Transform shipTransform = _localConfig.ShipContainer.Get().PoolTransform;
                 shipTransform.gameObject.SetActive(true);
                 shipTransform.GetComponent<EntityBehaviour>().AttachToEntity(shipEntity);
             }
 
-            switch (_localConfig.Data.ClientType)
+            switch (_localConfig.ClientType)
             {
                 case ClientType.SERVER:
                     UpdatePositionsOnServer();
@@ -65,9 +65,9 @@ namespace Ships
             for (int i = 0; i < _removeSessionEvents.EntitiesCount; i++)
             {
                 long sessionId = _removeSessionEvents.Components1[i].SessionId;
-                if(!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) continue;
+                if(!_localConfig.SessionIdToLocalEntity.ContainsKey(sessionId)) continue;
                 
-                int sessionEntity = _localConfig.Data.SessionIdToLocalEntity[sessionId];
+                int sessionEntity = _localConfig.SessionIdToLocalEntity[sessionId];
                 
                 var assignedShip = _ecsWorld.GetComponent<AssignedShipComponent>(sessionEntity);
                 if(assignedShip == null) continue;

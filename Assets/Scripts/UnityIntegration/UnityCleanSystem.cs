@@ -6,7 +6,6 @@ namespace UnityIntegration
     public class UnityCleanSystem : IEcsInitSystem
     {
         private EcsWorld _ecsWorld;
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
 
         private EcsFilter<UnityComponent> _unityComponents;
         private EcsFilter<RigidBodyComponent> _rigidbodyComponents;
@@ -18,9 +17,6 @@ namespace UnityIntegration
 
         public void Destroy()
         {
-            _localConfig.Data.ShipContainer = null;
-            _localConfig.Data.SessionIdToLocalEntity = null;
-            
             for (int i = 0; i < _unityComponents.EntitiesCount; i++)
             {
                 _unityComponents.Components1[i].Transform = null;

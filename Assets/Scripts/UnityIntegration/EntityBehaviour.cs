@@ -51,7 +51,11 @@ namespace UnityIntegration
 
         private void OnDisable()
         {
-            if(!_removeOnDisable || Entity < 0) return;
+            if (!_removeOnDisable || Entity < 0 || !_world.IsEntityExists(Entity))
+            {
+                Entity = -1;
+                return;
+            }
 
             _world.GetComponent<UnityComponent>(Entity).Transform = null;
             _world.RemoveEntity(Entity);

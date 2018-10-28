@@ -1,4 +1,5 @@
 ﻿using Leopotam.Ecs;
+using Leopotam.Ecs.Net;
 using LeopotamGroup.Pooling;
 using Ships.Effects;
 using Ships.Flight;
@@ -12,7 +13,7 @@ namespace Ships
     {
         private EcsWorld _ecsWorld;
 
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<ShipComponent, DestroyedShipMarkComponent> _destroyedShips;
         private EcsFilter<EngineEffectsComponent> _engineEffects;
@@ -58,11 +59,12 @@ namespace Ships
                 var unity = _ecsWorld.GetComponent<UnityComponent>(shipEntity);
                 if(unity != null)
                 {
-                    _localConfig.Data.ShipContainer.Recycle(unity.Transform.GetComponent<IPoolObject>());
+                    _localConfig.ShipContainer.Recycle(unity.Transform.GetComponent<IPoolObject>());
                     unity.Transform = null;
                 }
                 
                 _ecsWorld.RemoveEntity(shipEntity);
+                _ecsWorld.RemoveNetworkEntity(shipEntity);
             }
         }
 

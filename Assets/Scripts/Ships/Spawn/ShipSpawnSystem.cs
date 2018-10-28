@@ -12,14 +12,15 @@ namespace Ships.Spawn
     public class ShipSpawnSystem : IEcsRunSystem
     {
         private EcsWorld _ecsWorld;
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
+        
+        private LocalGameConfig _localConfig;
 
         private EcsFilter<SpawnShipEvent> _createEvents;
         private EcsFilter<PlayerComponent> _players;
         
         public void Run()
         {
-            if (_localConfig.Data.ClientType == ClientType.SERVER)
+            if (_localConfig.ClientType == ClientType.SERVER)
             {
                 SpawnShips();
             }
@@ -35,7 +36,7 @@ namespace Ships.Spawn
                 if(sessionLocalEntity < 0 || !_ecsWorld.IsEntityExists(sessionLocalEntity)) continue;
                 if(_ecsWorld.GetComponent<AssignedShipComponent>(sessionLocalEntity) != null) continue;
 
-                Transform shipObject = _localConfig.Data.ShipContainer.Get().PoolTransform;
+                Transform shipObject = _localConfig.ShipContainer.Get().PoolTransform;
                 shipObject.gameObject.SetActive(true);
                 shipObject.position = new Vector3(Random.Range(-25, 25), 0);
                 shipObject.rotation = Quaternion.identity;
@@ -69,9 +70,9 @@ namespace Ships.Spawn
 
         private int GetSessionEntity(long sessionId)
         {
-            if (!_localConfig.Data.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
+            if (!_localConfig.SessionIdToLocalEntity.ContainsKey(sessionId)) return -1;
 
-            return _localConfig.Data.SessionIdToLocalEntity[sessionId];
+            return _localConfig.SessionIdToLocalEntity[sessionId];
         }
     }
 }

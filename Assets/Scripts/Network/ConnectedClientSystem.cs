@@ -10,8 +10,6 @@ namespace Network
     {
         private EcsWorld _ecsWorld;
         
-        private EcsFilterSingle<LocalGameConfig> _localConfig;
-        
         private EcsFilter<ClientConnectedEvent> _connectedEvents;
         
         public void Run()
